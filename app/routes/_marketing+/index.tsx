@@ -5,7 +5,7 @@ export const meta: MetaFunction = () => [{ title: 'Epic Notes' }]
 export default function Index() {
 	return (
 		<main className="">
-			<p>Home page</p>
+			<p>This is the home page</p>
 		</main>
 	)
 }
