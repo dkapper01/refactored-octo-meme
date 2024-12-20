@@ -149,7 +149,7 @@ export default function MeetupsRoute() {
 						</div>
 					</CardContent>
 					<CardFooter>
-						<Link to={`/meetup/${meetup.id}`} className="w-full">
+						<Link to={`/meetup`} className="w-full">
 							<Button className="group w-full bg-primary text-primary-foreground hover:bg-primary/90">
 								View Details
 							</Button>
