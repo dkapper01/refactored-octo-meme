@@ -14,7 +14,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 	useLoaderData,
-	useMatches,
+	// useMatches,
 	useSubmit,
 } from '@remix-run/react'
 import { withSentry } from '@sentry/remix'
@@ -24,8 +24,9 @@ import appleTouchIconAssetUrl from './assets/favicons/apple-touch-icon.png'
 import faviconAssetUrl from './assets/favicons/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { EpicProgress } from './components/progress-bar.tsx'
-import { SearchBar } from './components/search-bar.tsx'
+// import { SearchBar } from './components/search-bar.tsx'
 import { useToast } from './components/toaster.tsx'
+import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar'
 import { Button } from './components/ui/button.tsx'
 import {
 	DropdownMenu,
@@ -207,19 +208,30 @@ function App() {
 	const data = useLoaderData<typeof loader>()
 	const user = useOptionalUser()
 	const theme = useTheme()
-	const matches = useMatches()
-	const isOnSearchPage = matches.find((m) => m.id === 'routes/users+/index')
-	const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />
+	// const matches = useMatches()
+	// const isOnSearchPage = matches.find((m) => m.id === 'routes/users+/index')
+	// const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />
 	useToast(data.toast)
 
 	return (
 		<>
 			<div className="flex h-screen flex-col justify-between">
-				<header className="container py-6">
-					<nav className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
+				<header className="container py-3">
+					<nav className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-4">
 						<Logo />
-						<div className="ml-auto hidden max-w-sm flex-1 sm:block">
-							{searchBar}
+						<div className="ml-auto hidden items-center gap-1 sm:flex">
+							<Button asChild variant="ghost">
+								<Link to={`/host`}>
+									<Icon name="map-pin" size="lg" />
+									Host
+								</Link>
+							</Button>
+							<Button asChild variant="ghost">
+								<Link to={`/meetups`}>
+									<Icon name="users" size="lg" />
+									Find Meetup
+								</Link>
+							</Button>
 						</div>
 						<div className="flex items-center gap-10">
 							{user ? (
@@ -230,7 +242,20 @@ function App() {
 								</Button>
 							)}
 						</div>
-						<div className="block w-full sm:hidden">{searchBar}</div>
+						<div className="block w-full text-center sm:hidden">
+							<Button asChild variant="ghost">
+								<Link to={`/host`}>
+									<Icon name="map-pin" size="lg" />
+									Host
+								</Link>
+							</Button>
+							<Button asChild variant="ghost">
+								<Link to={`/meetups`}>
+									<Icon name="users" size="lg" />
+									Find Meetup
+								</Link>
+							</Button>
+						</div>
 					</nav>
 				</header>
 
@@ -253,10 +278,10 @@ function Logo() {
 	return (
 		<Link to="/" className="group grid leading-snug">
 			<span className="font-light transition group-hover:-translate-x-1">
-				epic
+				Micro
 			</span>
 			<span className="font-bold transition group-hover:translate-x-1">
-				notes
+				Meetup
 			</span>
 		</Link>
 	)
@@ -280,26 +305,13 @@ function UserDropdown() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button asChild variant="secondary">
-					<Link
-						to={`/users/${user.username}`}
-						// this is for progressive enhancement
-						onClick={(e) => e.preventDefault()}
-						className="flex items-center gap-2"
-					>
-						<img
-							className="h-8 w-8 rounded-full object-cover"
-							alt={user.name ?? user.username}
-							src={getUserImgSrc(user.image?.id)}
-						/>
-						<span className="text-body-sm font-bold">
-							{user.name ?? user.username}
-						</span>
-					</Link>
-				</Button>
+				<Avatar className="cursor-pointer">
+					<AvatarImage src={getUserImgSrc(user.image?.id)} />
+					<AvatarFallback>{user.name ?? user.username}</AvatarFallback>
+				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuPortal>
-				<DropdownMenuContent sideOffset={8} align="start">
+				<DropdownMenuContent sideOffset={8} align="end">
 					<DropdownMenuItem asChild>
 						<Link prefetch="intent" to={`/users/${user.username}`}>
 							<Icon className="text-body-md" name="avatar">

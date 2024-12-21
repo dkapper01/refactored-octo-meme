@@ -1,7 +1,6 @@
 import { type MetaFunction } from '@remix-run/node'
-import { Button } from '#app/components/ui/button.tsx'
 import { Link } from '@remix-run/react'
-// import { MapPin, Users, ArrowRight } from 'lucide-react'
+import { Button } from '#app/components/ui/button.tsx'
 
 export const meta: MetaFunction = () => [{ title: 'Epic Notes' }]
 
