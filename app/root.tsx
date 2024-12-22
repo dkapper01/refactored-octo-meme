@@ -306,7 +306,10 @@ function UserDropdown() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Avatar className="cursor-pointer">
-					<AvatarImage src={getUserImgSrc(user.image?.id)} />
+					<AvatarImage
+						src={getUserImgSrc(user.image?.id)}
+						alt={user.name ?? user.username}
+					/>
 					<AvatarFallback>{user.name ?? user.username}</AvatarFallback>
 				</Avatar>
 			</DropdownMenuTrigger>
