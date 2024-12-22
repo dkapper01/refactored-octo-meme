@@ -142,27 +142,6 @@ export default function HostRoute() {
 						className="border-primary/20 focus:border-primary focus:ring-primary"
 					/>
 				</div>
-				<div className="space-y-2">
-					<Label
-						htmlFor="maxAttendees"
-						className="flex items-center text-sm font-medium"
-					>
-						{/* <Users className="mr-2 h-4 w-4 text-primary" /> */}
-						Maximum Attendees
-					</Label>
-					<Select onValueChange={(value) => setMaxAttendees(value)}>
-						<SelectTrigger className="border-primary/20 focus:border-primary focus:ring-primary">
-							<SelectValue placeholder="Select max attendees" />
-						</SelectTrigger>
-						<SelectContent>
-							{[1, 2, 3, 4, 5].map((num) => (
-								<SelectItem key={num} value={num.toString()}>
-									{num}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
 			</form>
 			<Button
 				type="submit"
