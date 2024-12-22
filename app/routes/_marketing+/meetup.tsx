@@ -85,7 +85,7 @@ export default function MeetupRoute() {
 		mockMeetup.coordinates.longitude
 	}`
 	return (
-		<div className="container mx-auto max-w-6xl px-4">
+		<div className="container mx-auto">
 			<div className="relative mb-8 h-[400px] overflow-hidden rounded-lg shadow-md">
 				<img
 					src={mockMeetup.locationImages[currentImageIndex]?.url}
@@ -220,7 +220,7 @@ export default function MeetupRoute() {
 										{mockMeetup.host.name}
 									</h3>
 									<Link
-										to={`/user/${mockMeetup.id}`}
+										to={`/profile`}
 										className="inline-flex items-center text-sm text-blue-600 hover:underline"
 									>
 										View Profile
