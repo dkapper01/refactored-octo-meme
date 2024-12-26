@@ -6,23 +6,23 @@ import { useEffect, useState } from 'react'
 // import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { Icon } from '#app/components/ui/icon.tsx'
 
-import { prisma } from '#app/utils/db.server.ts'
+// import { prisma } from '#app/utils/db.server.ts'
 
 export const meta: MetaFunction = () => [{ title: 'Epic Notes' }]
 
-export async function loader() {
-	const meetups = await prisma.meetup.findMany()
-	return json({ meetups })
-}
+// export async function loader() {
+// 	const meetups = await prisma.meetup.findMany()
+// 	return json({ meetups })
+// }
 
 export default function Index() {
 	// const currentView = 'map'
 	const location = useLocation()
 
 	// const navigation = useNavigation()
-	console.log(location)
-	const data = useLoaderData<typeof loader>()
-	console.log(data)
+	// console.log(location)
+	// const data = useLoaderData<typeof loader>()
+	// console.log(data)
 
 	return (
 		<div className="relative flex flex-col text-gray-800">
