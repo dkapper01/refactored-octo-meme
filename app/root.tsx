@@ -215,21 +215,30 @@ function App() {
 
 	return (
 		<>
-			<div className="flex h-screen flex-col justify-between">
-				<header className="container py-3">
-					<nav className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-4">
+			<div className="flex h-screen flex-col justify-between bg-gray-50">
+				<header className="border-b bg-white py-3 shadow-sm">
+					<nav className="container flex flex-wrap items-center justify-between">
 						<Logo />
-						<div className="ml-auto hidden items-center gap-1 sm:flex">
+						{/* <div className="ml-auto hidden items-center gap-1 sm:flex">
 							<Button asChild variant="ghost">
 								<Link to={`/host`}>
 									<Icon name="map-pin" size="lg" />
-									Host
+									Host 1
 								</Link>
 							</Button>
 							<Button asChild variant="ghost">
 								<Link to={`/meetups`}>
 									<Icon name="users" size="lg" />
-									Find Meetup
+									Find Meetup 1
+								</Link>
+							</Button>
+							{searchBar}
+						</div> */}
+						<div className="ml-auto mr-5">
+							<Button asChild>
+								<Link to={`/host`}>
+									<Icon name="plus" size="lg" />
+									Host a Meetup
 								</Link>
 							</Button>
 						</div>
@@ -243,18 +252,18 @@ function App() {
 							)}
 						</div>
 						<div className="block w-full text-center sm:hidden">
-							<Button asChild variant="ghost">
+							{/* <Button asChild variant="ghost">
 								<Link to={`/host`}>
 									<Icon name="map-pin" size="lg" />
-									Host
+									Host 2
 								</Link>
 							</Button>
 							<Button asChild variant="ghost">
 								<Link to={`/meetups`}>
 									<Icon name="users" size="lg" />
-									Find Meetup
+									Find Meetup 2
 								</Link>
-							</Button>
+							</Button> */}
 						</div>
 					</nav>
 				</header>
@@ -328,6 +337,13 @@ function UserDropdown() {
 						<Link prefetch="intent" to={`/users/${user.username}/notes`}>
 							<Icon className="text-body-md" name="pencil-2">
 								Notes
+							</Icon>
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link prefetch="intent" to={`/users/${user.username}/meetups`}>
+							<Icon className="text-body-md" name="pencil-2">
+								Meetups
 							</Icon>
 						</Link>
 					</DropdownMenuItem>
