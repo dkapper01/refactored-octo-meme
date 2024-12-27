@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '#app/components/ui/button.tsx'
 import CommandPreview from '#app/components/command-preveiw.tsx'
+import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
 import { Label } from '#app/components/ui/label.tsx'
@@ -12,7 +13,7 @@ export default function HostRoute() {
 		name: '',
 		address: '',
 	})
-	const [date, setDate] = useState('')
+	const [date, setDate] = useState<Date | undefined>(undefined)
 	const [startTime, setStartTime] = useState('')
 	const [endTime, setEndTime] = useState('')
 	const [description, setDescription] = useState('')
@@ -44,7 +45,7 @@ export default function HostRoute() {
 						htmlFor="Title"
 						className="flex items-center text-sm font-medium"
 					>
-						<Icon name="pencil-2" className="mr-2 h-4 w-4 text-primary" />
+						{/* <Icon name="pencil-2" className="mr-2 h-4 w-4 text-primary" /> */}
 						Title
 					</Label>
 					<Input
@@ -61,7 +62,7 @@ export default function HostRoute() {
 						htmlFor="location"
 						className="flex items-center text-sm font-medium"
 					>
-						<Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" />
+						{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
 						Location
 					</Label>
 					<Button
@@ -103,18 +104,10 @@ export default function HostRoute() {
 						htmlFor="date"
 						className="flex items-center text-sm font-medium"
 					>
-						<Icon name="calendar" className="mr-2 h-4 w-4 text-primary" />
+						{/* <Icon name="calendar" className="mr-2 h-4 w-4 text-primary" /> */}
 						Start Time
 					</Label>
-
-					<Input
-						id="date"
-						type="datetime-local"
-						value={date}
-						onChange={(e) => setDate(e.target.value)}
-						className="border-primary/20 focus:border-primary focus:ring-primary"
-						required
-					/>
+					<DateTimePicker date={date} setDate={setDate} />
 				</div>
 
 				<div className="space-y-2">
@@ -122,7 +115,7 @@ export default function HostRoute() {
 						htmlFor="description"
 						className="flex items-center text-sm font-medium"
 					>
-						<Icon name="document-text" className="mr-2 h-4 w-4 text-primary" />
+						{/* <Icon name="document-text" className="mr-2 h-4 w-4 text-primary" /> */}
 						Description
 					</Label>
 					<Textarea
@@ -139,7 +132,7 @@ export default function HostRoute() {
 						htmlFor="tags"
 						className="flex items-center text-sm font-medium"
 					>
-						<Icon name="tag" className="mr-2 h-4 w-4 text-primary" />
+						{/* <Icon name="tag" className="mr-2 h-4 w-4 text-primary" /> */}
 						Tags
 					</Label>
 					<Input
