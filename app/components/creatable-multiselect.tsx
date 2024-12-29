@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import CreatableSelect from 'react-select/creatable'
 import { ActionMeta, MultiValue, StylesConfig } from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 
 // Define the shape of our option object
 interface Option {
@@ -19,7 +19,7 @@ export default function CreatableMultiselect({
 	// Sample options
 	const [options, setOptions] = useState<readonly Option[]>([
 		{ value: 'react', label: 'React' },
-		{ value: 'rull-stack-development', label: 'Full Stack Development' },
+		{ value: 'full-stack-development', label: 'Full Stack Development' },
 		{ value: 'interview-prep', label: 'Interview Prep' },
 	])
 
@@ -30,16 +30,17 @@ export default function CreatableMultiselect({
 		newValue: MultiValue<Option>,
 		actionMeta: ActionMeta<Option>,
 	) => {
-		console.log('Value changed:', newValue)
-		setSelectedOptions(newValue)
+		setSelectedOptions(newValue as readonly Option[])
 	}
 
 	// Handler for creating a new option
 	const handleCreate = (inputValue: string) => {
-		const newOption = { value: inputValue.toLowerCase(), label: inputValue }
-		setOptions((prev) => [...prev, newOption])
-		setSelectedOptions((prev) => [...prev, newOption])
-		console.log('Option created:', newOption)
+		const newOption: Option = {
+			value: inputValue.toLowerCase(),
+			label: inputValue,
+		}
+		setOptions((prev) => [...prev, newOption] as readonly Option[])
+		setSelectedOptions((prev) => [...prev, newOption] as readonly Option[])
 	}
 
 	// Custom styles
@@ -73,7 +74,7 @@ export default function CreatableMultiselect({
 
 	return (
 		<div className="mx-auto w-full">
-			<CreatableSelect
+			<CreatableSelect<Option, true>
 				isMulti
 				options={options}
 				value={selectedOptions}

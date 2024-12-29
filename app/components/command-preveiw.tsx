@@ -7,8 +7,8 @@ import {
 	DialogPanel,
 	DialogBackdrop,
 } from '@headlessui/react'
-import { Icon } from '#app/components/ui/icon.tsx'
 import { useState } from 'react'
+import { Icon } from '#app/components/ui/icon.tsx'
 
 interface Person {
 	id: number
@@ -94,7 +94,7 @@ export default function CommandPreview({
 					transition
 					className="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition-all data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 				>
-					<Combobox<Person> onChange={(person: Person | null) => {}}>
+					<Combobox<Person> onChange={() => {}}>
 						{({ activeOption }) => (
 							<div>
 								<div className="grid grid-cols-1">
