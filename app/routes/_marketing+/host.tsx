@@ -1,25 +1,26 @@
 import { useState } from 'react'
 import { Button } from '#app/components/ui/button.tsx'
+import CommandPreview from '#app/components/command-preveiw.tsx'
+import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { Input } from '#app/components/ui/input.tsx'
+import { Icon } from '#app/components/ui/icon.tsx'
 import { Label } from '#app/components/ui/label.tsx'
-import {
-	Select,
-	SelectTrigger,
-	SelectContent,
-	SelectItem,
-	SelectValue,
-} from '#app/components/ui/select.tsx'
 import { Textarea } from '#app/components/ui/textarea.tsx'
 
 export default function HostRoute() {
-	const [location, setLocation] = useState('')
-	const [date, setDate] = useState('')
+	const [title, setTitle] = useState('')
+	const [location, setLocation] = useState({
+		name: '',
+		address: '',
+	})
+	const [date, setDate] = useState<Date | undefined>(undefined)
 	const [startTime, setStartTime] = useState('')
 	const [endTime, setEndTime] = useState('')
 	const [description, setDescription] = useState('')
 	const [tags, setTags] = useState('')
 	const [maxAttendees, setMaxAttendees] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [isCommandOpen, setIsCommandOpen] = useState(false)
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -41,19 +42,61 @@ export default function HostRoute() {
 			<form onSubmit={handleSubmit} className="space-y-6">
 				<div className="space-y-2">
 					<Label
+						htmlFor="Title"
+						className="flex items-center text-sm font-medium"
+					>
+						{/* <Icon name="pencil-2" className="mr-2 h-4 w-4 text-primary" /> */}
+						Title
+					</Label>
+					<Input
+						id="title"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						placeholder="Enter meetup title"
+						className="border-primary/20 focus:border-primary focus:ring-primary"
+						required
+					/>
+				</div>
+				<div className="space-y-2">
+					<Label
 						htmlFor="location"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <MapPin className="mr-2 h-4 w-4 text-primary" /> */}
+						{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
 						Location
 					</Label>
-					<Input
-						id="location"
-						value={location}
-						onChange={(e) => setLocation(e.target.value)}
-						placeholder="Enter meetup location"
-						className="border-primary/20 focus:border-primary focus:ring-primary"
-						required
+					<Button
+						variant="outline"
+						role="button"
+						aria-expanded={isCommandOpen}
+						className="w-full justify-between"
+						onClick={() => setIsCommandOpen(true)}
+					>
+						{location.name ? (
+							<span className="flex items-center">
+								<Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" />
+								<div className="text-left">
+									<div className="font-medium">{location.name}</div>
+									<div className="text-xs text-muted-foreground">
+										{location.address}
+									</div>
+								</div>
+							</span>
+						) : (
+							<span className="text-muted-foreground">
+								Select coffee shop...
+							</span>
+						)}
+
+						<Icon
+							name="chevron-down"
+							className="ml-2 h-4 w-4 shrink-0 opacity-50"
+						/>
+					</Button>
+					<CommandPreview
+						open={isCommandOpen}
+						setOpen={setIsCommandOpen}
+						setLocation={setLocation}
 					/>
 				</div>
 				<div className="space-y-2">
@@ -61,53 +104,10 @@ export default function HostRoute() {
 						htmlFor="date"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Calendar className="mr-2 h-4 w-4 text-primary" />  */}
-						Date
+						{/* <Icon name="calendar" className="mr-2 h-4 w-4 text-primary" /> */}
+						Start Time
 					</Label>
-					<Input
-						id="date"
-						type="date"
-						value={date}
-						onChange={(e) => setDate(e.target.value)}
-						className="border-primary/20 focus:border-primary focus:ring-primary"
-						required
-					/>
-				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="space-y-2">
-						<Label
-							htmlFor="endTime"
-							className="flex items-center text-sm font-medium"
-						>
-							{/* <Clock className="mr-2 h-4 w-4 text-primary" />  */}
-							End Time
-						</Label>
-						<Input
-							id="endTime"
-							type="time"
-							value={endTime}
-							onChange={(e) => setEndTime(e.target.value)}
-							className="border-primary/20 focus:border-primary focus:ring-primary"
-							required
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label
-							htmlFor="startTime"
-							className="flex items-center text-sm font-medium"
-						>
-							{/* <Clock className="mr-2 h-4 w-4 text-primary" /> */}
-							Start Time
-						</Label>
-						<Input
-							id="startTime"
-							type="time"
-							value={startTime}
-							onChange={(e) => setStartTime(e.target.value)}
-							className="border-primary/20 focus:border-primary focus:ring-primary"
-							required
-						/>
-					</div>
+					<DateTimePicker date={date} setDate={setDate} />
 				</div>
 
 				<div className="space-y-2">
@@ -115,6 +115,7 @@ export default function HostRoute() {
 						htmlFor="description"
 						className="flex items-center text-sm font-medium"
 					>
+						{/* <Icon name="document-text" className="mr-2 h-4 w-4 text-primary" /> */}
 						Description
 					</Label>
 					<Textarea
@@ -131,7 +132,7 @@ export default function HostRoute() {
 						htmlFor="tags"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Tag className="mr-2 h-4 w-4 text-primary" />  */}
+						{/* <Icon name="tag" className="mr-2 h-4 w-4 text-primary" /> */}
 						Tags
 					</Label>
 					<Input
@@ -149,14 +150,7 @@ export default function HostRoute() {
 				disabled={isSubmitting}
 				onClick={handleSubmit}
 			>
-				{isSubmitting ? (
-					<>
-						{/* <Loader2 className="mr-2 h-4 w-4 animate-spin" /> */}
-						Publishing...
-					</>
-				) : (
-					'Publish Meetup'
-				)}
+				{isSubmitting ? <>Publishing...</> : 'Publish Meetup'}
 			</Button>
 		</div>
 	)
