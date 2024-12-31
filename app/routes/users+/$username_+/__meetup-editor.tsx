@@ -12,6 +12,9 @@ import {
 	// type FieldMetadata,
 } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
+import { type Meetup } from '@prisma/client'
+import { type SerializeFrom } from '@remix-run/node'
+
 // import {
 // 	json,
 // 	redirect,
@@ -22,11 +25,17 @@ import { parseWithZod } from '@conform-to/zod'
 import { Form } from '@remix-run/react'
 // import { useState } from 'react'
 import { z } from 'zod'
+import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
+
 // import CommandPreview from '#app/components/command-preveiw.tsx'
 // import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
 // import DateTimePicker from '#app/components/date-time-picker.tsx'
+
 import { Field, TextareaField } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
+import { StatusButton } from '#app/components/ui/status-button.tsx'
+import { useIsPending } from '#app/utils/misc.tsx'
+
 // import { Icon } from '#app/components/ui/icon.tsx'
 // import { Label } from '#app/components/ui/label.tsx'
 // import { Textarea } from '#app/components/ui/textarea.tsx'
@@ -45,6 +54,7 @@ import { Button } from '#app/components/ui/button.tsx'
 // }
 
 export const formSchema = z.object({
+	id: z.string().optional(),
 	title: z.string().min(3, {
 		message: 'Title must be at least 3 characters.',
 	}),
@@ -94,8 +104,14 @@ export const formSchema = z.object({
 // 	return redirect('/')
 // }
 
-export function MeetupEditor() {
+export function MeetupEditor({
+	meetup,
+}: {
+	meetup?: SerializeFrom<Pick<Meetup, 'id' | 'title' | 'description'>>
+}) {
 	// const actionData = useActionData<typeof action>()
+	const isPending = useIsPending()
+
 	// console.log({ actionData })
 
 	// const [title, setTitle] = useState('')
@@ -114,14 +130,13 @@ export function MeetupEditor() {
 
 	const [form, fields] = useForm({
 		id: 'meetup-form',
-		// constraint: getZodConstraint(formSchema),
-		// lastResult: actionData?.result,
 		onValidate({ formData }) {
 			return parseWithZod(formData, { schema: formSchema })
 		},
 		defaultValue: {
-			title: '',
-			description: '',
+			id: meetup?.id,
+			title: meetup?.title ?? '',
+			description: meetup?.description ?? '',
 		},
 	})
 
@@ -178,6 +193,7 @@ export function MeetupEditor() {
 					{...getFormProps(form)}
 					encType="multipart/form-data"
 				>
+					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
 					<div className="space-y-2">
 						<Field
 							labelProps={{ children: 'Title' }}
@@ -279,16 +295,29 @@ export function MeetupEditor() {
 					</Label>
 					<CreatableMultiselect />
 				</div> */}
-					<Button
+					{/* <Button
 						type="submit"
 						className="mt-10 w-full bg-primary text-primary-foreground hover:bg-primary/90"
 						// disabled={isSubmitting}
 						// onClick={handleSubmit}
 					>
 						Publish Meetup
-					</Button>
+					</Button> */}
 					{/* <ErrorList id={form.errorId} errors={form.errors} /> */}
 				</Form>
+				<div className={floatingToolbarClassName}>
+					<Button variant="destructive" {...form.reset.getButtonProps()}>
+						Reset
+					</Button>
+					<StatusButton
+						form={form.id}
+						type="submit"
+						disabled={isPending}
+						status={isPending ? 'pending' : 'idle'}
+					>
+						Submit
+					</StatusButton>
+				</div>
 			</FormProvider>
 		</div>
 	)

@@ -1,5 +1,5 @@
 import { parseWithZod } from '@conform-to/zod'
-import { json, type ActionFunctionArgs } from '@remix-run/node'
+import { json, type ActionFunctionArgs, redirect } from '@remix-run/node'
 import { requireUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { formSchema } from './__meetup-editor'
@@ -16,12 +16,23 @@ export async function action({ request }: ActionFunctionArgs) {
 		)
 	}
 
-	const meetup = await prisma.meetup.create({
-		data: {
-			...submission.value,
+	const { id: meetupId, title, description } = submission.value
+
+	const meetup = await prisma.meetup.upsert({
+		select: { id: true, owner: { select: { username: true } } },
+		where: { id: meetupId ?? '__new_meetup__' },
+		create: {
 			ownerId: userId,
+			title,
+			description,
+			// images: { create: newImages },
+		},
+		update: {
+			title,
+			description,
+			// images: { create: newImages },
 		},
 	})
 
-	return json({ result: meetup })
+	return redirect(`/users/${meetup.owner.username}/meetups/${meetup.id}`)
 }
