@@ -20,9 +20,7 @@ export default function Index() {
 	const location = useLocation()
 
 	// const navigation = useNavigation()
-	// console.log(location)
 	// const data = useLoaderData<typeof loader>()
-	// console.log(data)
 
 	return (
 		<div className="relative flex flex-col text-gray-800">
