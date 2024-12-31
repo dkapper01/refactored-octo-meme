@@ -22,7 +22,7 @@ model User {
   image       UserImage?
   password    Password?
   notes       Note[]
-  meetups     Meetup[]
+  // meetups     Meetup[]
   roles       Role[]
   sessions    Session[]
   connections Connection[]
@@ -30,30 +30,31 @@ model User {
 
 model Meetup {
   id      String @id @default(cuid())
-  startTime DateTime
-  description String
-  topics Topic[]
-  location Location[]
+  title   String @default("Untitled Meetup")
+  // startTime DateTime
+  description String @default("")
+  // topics Topic[]
+  // location Location[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  ownerId String
+  // owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  // ownerId String
 
 }
 
 model Topic {
   id      String @id @default(cuid())
   name String
-  meetups Meetup[]
+  // meetups Meetup[]
 }
 
 model Location {
   id      String @id @default(cuid())
   name String
   address String @unique
-  meetups Meetup[]
+  // meetups Meetup[]
 }
 
 model Note {
