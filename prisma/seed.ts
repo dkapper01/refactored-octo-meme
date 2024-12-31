@@ -16,12 +16,12 @@ async function seed() {
 	console.time(`🌱 Database has been seeded`)
 
 	// Create roles first
-	await prisma.role.createMany({
-		data: [
-			{ name: 'admin', description: 'Administrator' },
-			{ name: 'user', description: 'Regular user' },
-		],
-	})
+	// await prisma.role.createMany({
+	// 	data: [
+	// 		{ name: 'admin', description: 'Administrator' },
+	// 		{ name: 'user', description: 'Regular user' },
+	// 	],
+	// })
 
 	const totalUsers = 5
 	console.time(`👤 Created ${totalUsers} users...`)
