@@ -1,55 +1,37 @@
+import { Form } from '@remix-run/react'
 import { useState } from 'react'
-import { Button } from '#app/components/ui/button.tsx'
 import CommandPreview from '#app/components/command-preveiw.tsx'
+import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
 import DateTimePicker from '#app/components/date-time-picker.tsx'
-import { Input } from '#app/components/ui/input.tsx'
+import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
+import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'
 import { Textarea } from '#app/components/ui/textarea.tsx'
 
 export default function HostRoute() {
 	const [title, setTitle] = useState('')
+	const [description, setDescription] = useState('')
 	const [location, setLocation] = useState({
 		name: '',
 		address: '',
 	})
-	const [date, setDate] = useState<Date | undefined>(undefined)
-	const [startTime, setStartTime] = useState('')
-	const [endTime, setEndTime] = useState('')
-	const [description, setDescription] = useState('')
-	const [tags, setTags] = useState('')
-	const [maxAttendees, setMaxAttendees] = useState('')
-	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [isCommandOpen, setIsCommandOpen] = useState(false)
+	const [date, setDate] = useState<Date | undefined>(undefined)
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		setIsSubmitting(true)
-		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 1500))
-		console.log({
-			location,
-			date,
-			startTime,
-			endTime,
-			description,
-			tags,
-			maxAttendees,
-		})
-	}
 	return (
 		<div className="container mx-auto mt-10 max-w-2xl p-4">
-			<form onSubmit={handleSubmit} className="space-y-6">
+			<Form method="post" className="space-y-6">
 				<div className="space-y-2">
 					<Label
 						htmlFor="Title"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Icon name="pencil-2" className="mr-2 h-4 w-4 text-primary" /> */}
 						Title
 					</Label>
 					<Input
 						id="title"
+						name="title"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						placeholder="Enter meetup title"
@@ -57,12 +39,12 @@ export default function HostRoute() {
 						required
 					/>
 				</div>
+
 				<div className="space-y-2">
 					<Label
 						htmlFor="location"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
 						Location
 					</Label>
 					<Button
@@ -104,7 +86,6 @@ export default function HostRoute() {
 						htmlFor="date"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Icon name="calendar" className="mr-2 h-4 w-4 text-primary" /> */}
 						Start Time
 					</Label>
 					<DateTimePicker date={date} setDate={setDate} />
@@ -115,11 +96,11 @@ export default function HostRoute() {
 						htmlFor="description"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Icon name="document-text" className="mr-2 h-4 w-4 text-primary" /> */}
 						Description
 					</Label>
 					<Textarea
 						id="description"
+						name="description"
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
 						placeholder="Write a short description of your meetup..."
@@ -132,26 +113,17 @@ export default function HostRoute() {
 						htmlFor="tags"
 						className="flex items-center text-sm font-medium"
 					>
-						{/* <Icon name="tag" className="mr-2 h-4 w-4 text-primary" /> */}
 						Tags
 					</Label>
-					<Input
-						id="tags"
-						value={tags}
-						onChange={(e) => setTags(e.target.value)}
-						placeholder="e.g. Coffee, Networking (comma separated)"
-						className="border-primary/20 focus:border-primary focus:ring-primary"
-					/>
+					<CreatableMultiselect />
 				</div>
-			</form>
-			<Button
-				type="submit"
-				className="mt-10 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-				disabled={isSubmitting}
-				onClick={handleSubmit}
-			>
-				{isSubmitting ? <>Publishing...</> : 'Publish Meetup'}
-			</Button>
+				<Button
+					type="submit"
+					className="mt-10 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+				>
+					Publish Meetup
+				</Button>
+			</Form>
 		</div>
 	)
 }
