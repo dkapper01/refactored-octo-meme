@@ -15,6 +15,14 @@ async function seed() {
 	console.log('🌱 Seeding...')
 	console.time(`🌱 Database has been seeded`)
 
+	// Create roles first
+	await prisma.role.createMany({
+		data: [
+			{ name: 'admin', description: 'Administrator' },
+			{ name: 'user', description: 'Regular user' },
+		],
+	})
+
 	const totalUsers = 5
 	console.time(`👤 Created ${totalUsers} users...`)
 	const noteImages = await getNoteImages()
@@ -130,7 +138,7 @@ async function seed() {
 						id: '260366b1',
 						title: 'Not bears',
 						content:
-							"Although you may have heard people call them koala 'bears', these awesome animals aren’t bears at all – they are in fact marsupials. A group of mammals, most marsupials have pouches where their newborns develop.",
+							"Although you may have heard people call them koala 'bears', these awesome animals aren't bears at all – they are in fact marsupials. A group of mammals, most marsupials have pouches where their newborns develop.",
 					},
 					{
 						id: 'bb79cf45',
