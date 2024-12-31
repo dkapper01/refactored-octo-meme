@@ -14,7 +14,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			name: true,
 			username: true,
 			image: { select: { id: true } },
-			notes: { select: { id: true, title: true } },
+			// notes: { select: { id: true, title: true } },
+			meetups: { select: { id: true, title: true } },
 		},
 		where: { username: params.username },
 	})
@@ -46,7 +47,7 @@ export default function MeetupsRoute() {
 								className="h-16 w-16 rounded-full object-cover lg:h-24 lg:w-24"
 							/>
 							<h1 className="text-center text-base font-bold md:text-lg lg:text-left lg:text-2xl">
-								{ownerDisplayName}'s Notes
+								{ownerDisplayName}'s Meetups
 							</h1>
 						</Link>
 						<ul className="overflow-y-auto overflow-x-hidden pb-12">
@@ -62,17 +63,17 @@ export default function MeetupsRoute() {
 									</NavLink>
 								</li>
 							) : null}
-							{data.owner.notes.map((note) => (
-								<li key={note.id} className="p-1 pr-0">
+							{data.owner.meetups.map((meetup) => (
+								<li key={meetup.id} className="p-1 pr-0">
 									<NavLink
-										to={note.id}
+										to={meetup.id}
 										preventScrollReset
 										prefetch="intent"
 										className={({ isActive }) =>
 											cn(navLinkDefaultClassName, isActive && 'bg-accent')
 										}
 									>
-										{note.title}
+										{meetup.title}
 									</NavLink>
 								</li>
 							))}
