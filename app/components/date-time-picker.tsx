@@ -1,4 +1,3 @@
-import * as React from 'react'
 import {
 	format,
 	addMinutes,
@@ -8,7 +7,7 @@ import {
 	startOfToday,
 	parse,
 } from 'date-fns'
-import { cn } from '#app/utils/misc.tsx'
+import { useState } from 'react'
 import { Button } from '#app/components/ui/button'
 import { Calendar } from '#app/components/ui/calendar'
 import { Icon } from '#app/components/ui/icon.tsx'
@@ -19,17 +18,19 @@ import {
 } from '#app/components/ui/popover'
 import { ScrollArea } from '#app/components/ui/scroll-area'
 
+import { cn } from '#app/utils/misc.tsx'
+
 interface DateTimePickerProps {
 	date: Date | undefined
 	setDate: (date: Date | undefined) => void
 }
 
 export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
-	const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(date)
-	const [selectedTime, setSelectedTime] = React.useState<string>(
+	const [selectedDate, setSelectedDate] = useState<Date | undefined>(date)
+	const [selectedTime, setSelectedTime] = useState<string>(
 		date ? format(date, 'HH:mm') : '',
 	)
-	const [open, setOpen] = React.useState(false)
+	const [open, setOpen] = useState(false)
 
 	const generateTimeOptions = (selectedDate: Date | undefined) => {
 		const options = []
@@ -109,7 +110,7 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 								onSelect={handleDateSelect}
 								disabled={(date) => isBefore(date, startOfToday())}
 								initialFocus
-								className="rounded-md border"
+								className="rounded-md border-none"
 							/>
 						</div>
 						<div className="flex h-full flex-col justify-between p-4">
