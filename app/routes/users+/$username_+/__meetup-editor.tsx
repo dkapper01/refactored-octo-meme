@@ -40,7 +40,7 @@ import { type loader } from './__meetup-editor.server'
 // import CommandPreview from '#app/components/command-preveiw.tsx'
 // import DateTimePicker from '#app/components/date-time-picker.tsx'
 
-export const formSchema = z.object({
+export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
 	title: z.string().min(3, {
 		message: 'Title must be at least 3 characters.',
@@ -80,7 +80,7 @@ export function MeetupEditor({
 	const [form, fields] = useForm({
 		id: 'meetup-form',
 		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: formSchema })
+			return parseWithZod(formData, { schema: MeetupEditorSchema })
 		},
 		defaultValue: {
 			id: meetup?.id,
@@ -95,8 +95,8 @@ export function MeetupEditor({
 	// 	// Simulate API call
 	// 	await new Promise((resolve) => setTimeout(resolve, 1500))
 
-	// const form = useForm<z.infer<typeof formSchema>>({
-	// 	resolver: zodResolver(formSchema),
+	// const form = useForm<z.infer<typeof MeetupEditorSchema>>({
+	// 	resolver: zodResolver(MeetupEditorSchema),
 	// 	defaultValues: {
 	// 		title: '',
 	// 		location: '',
@@ -106,7 +106,7 @@ export function MeetupEditor({
 	// 	},
 	// })
 
-	// function handleSubmit(values: z.infer<typeof formSchema>) {
+	// function handleSubmit(values: z.infer<typeof MeetupEditorSchema>) {
 	// 	const formattedValues = {
 	// 		...values,
 	// 		tags: values.tags.map((tag) => tag.value),
