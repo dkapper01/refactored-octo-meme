@@ -74,7 +74,7 @@ export function MeetupEditor({
 }: {
 	meetup?: SerializeFrom<Pick<Meetup, 'id' | 'title' | 'description'>>
 }) {
-	const { topics } = useLoaderData<typeof loader>()
+	const { topics = [] } = useLoaderData<typeof loader>()
 	const isPending = useIsPending()
 
 	const [form, fields] = useForm({
