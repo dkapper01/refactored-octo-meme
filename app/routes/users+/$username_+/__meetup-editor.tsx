@@ -1,7 +1,3 @@
-// export function MeetupEditor() {
-// 	return <div>Meetup Editor</div>
-// }
-
 import {
 	FormProvider,
 	// getFieldsetProps,
@@ -11,49 +7,40 @@ import {
 	useForm,
 	// type FieldMetadata,
 } from '@conform-to/react'
+
 import { parseWithZod } from '@conform-to/zod'
 import { type Meetup } from '@prisma/client'
-import { type SerializeFrom } from '@remix-run/node'
+import {
+	type SerializeFrom,
+	// json,
+	// type LoaderFunctionArgs,
+} from '@remix-run/node'
 
-// import {
-// 	json,
-// 	redirect,
-// 	type ActionFunctionArgs,
-// 	// type LoaderFunctionArgs,
-// } from '@remix-run/node'
-
-import { Form } from '@remix-run/react'
+import {
+	Form,
+	useLoaderData,
+	// useActionData,
+	// useIsPending,
+} from '@remix-run/react'
 // import { useState } from 'react'
 import { z } from 'zod'
+import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
-
-// import CommandPreview from '#app/components/command-preveiw.tsx'
-// import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
-// import DateTimePicker from '#app/components/date-time-picker.tsx'
 
 import { Field, TextareaField } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
+import { Label } from '#app/components/ui/label.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
 import { useIsPending } from '#app/utils/misc.tsx'
 
+import { type loader } from './__meetup-editor.server'
+
 // import { Icon } from '#app/components/ui/icon.tsx'
-// import { Label } from '#app/components/ui/label.tsx'
 // import { Textarea } from '#app/components/ui/textarea.tsx'
-// import { prisma } from '#app/utils/db.server.ts'
-// import { type action } from './__meetup-editor.server'
+// import CommandPreview from '#app/components/command-preveiw.tsx'
+// import DateTimePicker from '#app/components/date-time-picker.tsx'
 
-// const initialTags = [
-// 	{ value: 'social', label: 'Social' },
-// 	{ value: 'tech', label: 'Tech' },
-// 	{ value: 'sports', label: 'Sports' },
-// 	{ value: 'education', label: 'Education' },
-// ]
-
-// interface MicoMeetupFormProps {
-// 	onSubmit: (values: z.infer<typeof formSchema>) => void
-// }
-
-export const formSchema = z.object({
+export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
 	title: z.string().min(3, {
 		message: 'Title must be at least 3 characters.',
@@ -82,56 +69,18 @@ export const formSchema = z.object({
 	// }),
 })
 
-// export async function action({ request }: ActionFunctionArgs) {
-// 	const formData = await request.formData()
-// 	const title = formData.get('title')
-// 	const description = formData.get('description')
-
-// 	if (typeof title !== 'string' || typeof description !== 'string') {
-// 		return json({ error: 'Invalid form data' }, { status: 400 })
-// 	}
-// 	// const result = parseWithZod(formData, { schema: formSchema })
-// 	// console.log({ result })
-
-// 	await prisma.meetup.create({
-// 		data: {
-// 			title: title,
-// 			description: description,
-// 			// result,
-// 		},
-// 	})
-
-// 	return redirect('/')
-// }
-
 export function MeetupEditor({
 	meetup,
 }: {
 	meetup?: SerializeFrom<Pick<Meetup, 'id' | 'title' | 'description'>>
 }) {
-	// const actionData = useActionData<typeof action>()
+	const { topics = [] } = useLoaderData<typeof loader>()
 	const isPending = useIsPending()
-
-	// console.log({ actionData })
-
-	// const [title, setTitle] = useState('')
-	// const [description, setDescription] = useState('')
-	// const [location, setLocation] = useState({
-	// 	name: '',
-	// 	address: '',
-	// })
-	// const [isCommandOpen, setIsCommandOpen] = useState(false)
-	// const [date, setDate] = useState(undefined)
-	// const [startTime, setStartTime] = useState('')
-	// const [endTime, setEndTime] = useState('')
-	// const [tags, setTags] = useState('')
-	// const [isSubmitting, setIsSubmitting] = useState(false)
-	// const [tags, setTags] = useState(initialTags)
 
 	const [form, fields] = useForm({
 		id: 'meetup-form',
 		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: formSchema })
+			return parseWithZod(formData, { schema: MeetupEditorSchema })
 		},
 		defaultValue: {
 			id: meetup?.id,
@@ -145,19 +94,9 @@ export function MeetupEditor({
 	// 	setIsSubmitting(true)
 	// 	// Simulate API call
 	// 	await new Promise((resolve) => setTimeout(resolve, 1500))
-	// 	console.log({
-	// 		location,
-	// 		date,
-	// 		startTime,
-	// 		endTime,
-	// 		description,
-	// 		tags,
-	// 		maxAttendees,
-	// 	})
-	// }
 
-	// const form = useForm<z.infer<typeof formSchema>>({
-	// 	resolver: zodResolver(formSchema),
+	// const form = useForm<z.infer<typeof MeetupEditorSchema>>({
+	// 	resolver: zodResolver(MeetupEditorSchema),
 	// 	defaultValues: {
 	// 		title: '',
 	// 		location: '',
@@ -167,7 +106,7 @@ export function MeetupEditor({
 	// 	},
 	// })
 
-	// function handleSubmit(values: z.infer<typeof formSchema>) {
+	// function handleSubmit(values: z.infer<typeof MeetupEditorSchema>) {
 	// 	const formattedValues = {
 	// 		...values,
 	// 		tags: values.tags.map((tag) => tag.value),
@@ -286,15 +225,15 @@ export function MeetupEditor({
 						required
 					/>
 				</div> */}
-					{/* <div className="space-y-2">
-					<Label
-						htmlFor="tags"
-						className="flex items-center text-sm font-medium"
-					>
-						Tags
-					</Label>
-					<CreatableMultiselect />
-				</div> */}
+					<div className="space-y-2">
+						<Label
+							htmlFor="tags"
+							className="flex items-center text-sm font-medium"
+						>
+							Tags
+						</Label>
+						<CreatableMultiselect topics={topics} />
+					</div>
 					{/* <Button
 						type="submit"
 						className="mt-10 w-full bg-primary text-primary-foreground hover:bg-primary/90"

@@ -49,9 +49,7 @@ export function userHasPermission(
 	permission: PermissionString,
 ) {
 	if (!user) return false
-	// console.log({ user, permission })
 	const { action, entity, access } = parsePermissionString(permission)
-	console.log({ action, entity, access, user, permission })
 	return user.roles.some((role) =>
 		role.permissions.some(
 			(permission) =>

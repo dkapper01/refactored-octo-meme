@@ -34,7 +34,6 @@ import { DeleteNote } from './notes.$noteId'
 // import { type loader as notesLoader } from './notes.tsx'
 
 export async function loader({ params }: LoaderFunctionArgs) {
-	// console.log(params)
 	const meetup = await prisma.meetup.findUnique({
 		where: { id: params.meetupId },
 		select: {
@@ -107,9 +106,6 @@ export default function MeetupRoute() {
 		isOwner ? `delete:meetup:any` : `delete:meetup:any`,
 	)
 	const displayBar = canDelete || isOwner
-
-	// console.log(data)
-	console.log({ canDelete, isOwner })
 
 	return (
 		<div className="absolute inset-0 flex flex-col px-10">

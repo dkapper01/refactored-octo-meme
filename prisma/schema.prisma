@@ -34,7 +34,7 @@ model Meetup {
   title   String @default("Untitled Meetup")
   // startTime DateTime
   description String @default("")
-  // topics Topic[]
+  topics Topic[]
   // location Location[]
 
   createdAt DateTime @default(now())
@@ -48,7 +48,8 @@ model Meetup {
 model Topic {
   id      String @id @default(cuid())
   name String
-  // meetups Meetup[]
+  
+  meetups Meetup[]
 }
 
 model Location {

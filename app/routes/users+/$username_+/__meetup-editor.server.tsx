@@ -1,13 +1,23 @@
 import { parseWithZod } from '@conform-to/zod'
-import { json, type ActionFunctionArgs, redirect } from '@remix-run/node'
+import {
+	json,
+	type ActionFunctionArgs,
+	redirect,
+	type LoaderFunctionArgs,
+} from '@remix-run/node'
 import { requireUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
-import { formSchema } from './__meetup-editor'
+import { MeetupEditorSchema } from './__meetup-editor'
+
+export async function loader({}: LoaderFunctionArgs) {
+	const topics = await prisma.topic.findMany()
+	return json({ topics })
+}
 
 export async function action({ request }: ActionFunctionArgs) {
 	const userId = await requireUserId(request)
 	const formData = await request.formData()
-	const submission = parseWithZod(formData, { schema: formSchema })
+	const submission = parseWithZod(formData, { schema: MeetupEditorSchema })
 
 	if (submission.status !== 'success') {
 		return json(
@@ -25,12 +35,10 @@ export async function action({ request }: ActionFunctionArgs) {
 			ownerId: userId,
 			title,
 			description,
-			// images: { create: newImages },
 		},
 		update: {
 			title,
 			description,
-			// images: { create: newImages },
 		},
 	})
 
