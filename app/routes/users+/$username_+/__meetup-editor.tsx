@@ -89,7 +89,6 @@ export function MeetupEditor({
 			topics: meetup?.topics ?? [{}],
 		},
 	})
-	const topicsList = fields.topics.getFieldList()
 
 	const [open, setOpen] = useState(false)
 	const [inputValue, setInputValue] = useState('')
