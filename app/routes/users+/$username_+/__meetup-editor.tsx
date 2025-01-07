@@ -94,7 +94,7 @@ export function MeetupEditor({
 	const [inputValue, setInputValue] = useState('')
 	const [selectedValues, setSelectedValues] = useState<
 		Array<{ id: string; name: string }>
-	>([])
+	>(meetup?.topics ?? [])
 	const [items, setItems] = useState(topics)
 
 	function onSelect(item: { id: string; name: string }) {
@@ -170,12 +170,12 @@ export function MeetupEditor({
 						{selectedValues.map((topic, index) => (
 							<React.Fragment key={topic.id}>
 								<input
-									// type="hidden"
+									type="hidden"
 									name={`topics[${index}].id`}
 									value={topic.id}
 								/>
 								<input
-									// type="hidden"
+									type="hidden"
 									name={`topics[${index}].name`}
 									value={topic.name}
 								/>
