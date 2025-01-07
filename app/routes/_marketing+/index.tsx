@@ -1,9 +1,6 @@
 import { type MetaFunction } from '@remix-run/node'
 import { Link, useLocation } from '@remix-run/react'
-// import { useEffect, useState } from 'react'
 
-// import { Button } from '#app/components/ui/button.tsx'
-// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { Icon } from '#app/components/ui/icon.tsx'
 
 // import { prisma } from '#app/utils/db.server.ts'
