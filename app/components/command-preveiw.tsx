@@ -10,6 +10,7 @@ import {
 import { useState } from 'react'
 import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
+import { cn } from '#app/utils/misc.tsx'
 
 interface Location {
 	id: number
@@ -56,10 +57,6 @@ const combineAddress = (address: {
 }
 
 const recent = [location[0], location[1]]
-
-function classNames(...classes: string[]) {
-	return classes.filter(Boolean).join(' ')
-}
 
 export default function CommandPreview({
 	open,
@@ -128,7 +125,7 @@ export default function CommandPreview({
 										className="flex transform-gpu divide-x divide-gray-100"
 									>
 										<div
-											className={classNames(
+											className={cn(
 												'max-h-96 min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4',
 												activeOption ? 'sm:h-96' : '',
 											)}
