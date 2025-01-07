@@ -10,39 +10,45 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { type Meetup } from '@prisma/client'
 import { type SerializeFrom } from '@remix-run/node'
 
-import { Form, useLoaderData, useActionData } from '@remix-run/react'
+import {
+	Form,
+	// useLoaderData,
+	// useActionData
+} from '@remix-run/react'
 import React, { useState } from 'react'
 import { z } from 'zod'
 // import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import CommandPreview from '#app/components/command-preveiw.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Field, TextareaField } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
-import {
-	Command,
-	CommandEmpty,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '#app/components/ui/command'
+// import {
+// 	Command,
+// 	CommandEmpty,
+// 	CommandInput,
+// 	CommandItem,
+// 	CommandList,
+// } from '#app/components/ui/command'
 import { Icon } from '#app/components/ui/icon'
-
-import { Label } from '#app/components/ui/label.tsx'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '#app/components/ui/popover'
-
+// import { Label } from '#app/components/ui/label.tsx'
+// import {
+// 	Popover,
+// 	PopoverContent,
+// 	PopoverTrigger,
+// } from '#app/components/ui/popover'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
-import { cn, useIsPending } from '#app/utils/misc.tsx'
+import {
+	// cn,
+	useIsPending,
+} from '#app/utils/misc.tsx'
 
-import { type loader, type action } from './__meetup-editor.server'
+// import { type loader, type action } from './__meetup-editor.server'
 
-const TopicSchema = z.object({
-	id: z.string().optional(),
-	name: z.string(),
-})
+// const TopicSchema = z.object({
+// 	id: z.string().optional(),
+// 	name: z.string(),
+// })
 
 export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
@@ -52,9 +58,9 @@ export const MeetupEditorSchema = z.object({
 	description: z.string().min(10, {
 		message: 'Description must be at least 10 characters.',
 	}),
-	topics: z.array(TopicSchema).min(1, {
-		message: 'Please select at least one topic.',
-	}),
+	// topics: z.array(TopicSchema).min(1, {
+	// 	message: 'Please select at least one topic.',
+	// }),
 })
 
 export function MeetupEditor({
@@ -66,9 +72,9 @@ export function MeetupEditor({
 		}
 	>
 }) {
-	const { topics = [] } = useLoaderData<typeof loader>()
+	// const { topics = [] } = useLoaderData<typeof loader>()
 
-	const actionData = useActionData<typeof action>()
+	// const actionData = useActionData<typeof action>()
 
 	const isPending = useIsPending()
 
@@ -86,38 +92,43 @@ export function MeetupEditor({
 			id: meetup?.id,
 			title: meetup?.title ?? '',
 			description: meetup?.description ?? '',
-			topics: meetup?.topics ?? [{}],
+			// topics: meetup?.topics ?? [{}],
 		},
 	})
 
-	const [open, setOpen] = useState(false)
-	const [inputValue, setInputValue] = useState('')
-	const [selectedValues, setSelectedValues] = useState<
-		Array<{ id: string; name: string }>
-	>(meetup?.topics ?? [])
-	const [items, setItems] = useState(topics)
+	// const [open, setOpen] = useState(false)
+	// const [inputValue, setInputValue] = useState('')
+	// const [selectedValues, setSelectedValues] = useState<
+	// 	Array<{ id: string; name: string }>
+	// >(meetup?.topics ?? [])
+	// const [items, setItems] = useState(topics)
 
-	function onSelect(item: { id: string; name: string }) {
-		setSelectedValues((prev) =>
-			prev.some((i) => i.id === item.id)
-				? prev.filter((i) => i.id !== item.id)
-				: [...prev, item],
-		)
-		setOpen(false)
-	}
+	// function onSelect(item: { id: string; name: string }) {
+	// 	setSelectedValues((prev) =>
+	// 		prev.some((i) => i.id === item.id)
+	// 			? prev.filter((i) => i.id !== item.id)
+	// 			: [...prev, item],
+	// 	)
+	// 	setOpen(false)
+	// }
 
-	function onCreate(value: string) {
-		// For demonstration, just use the same string for `id` & `name`
-		// In reality, you might do something like:
-		// const generatedId = nanoid();
-		// { id: generatedId, name: value }
-		const newItem = { id: value, name: value }
+	// function onCreate(value: string) {
+	// 	// For demonstration, just use the same string for `id` & `name`
+	// 	// In reality, you might do something like:
+	// 	// const generatedId = nanoid();
+	// 	// { id: generatedId, name: value }
+	// 	const newItem = { id: value, name: value }
 
-		setItems((prev) => [...prev, newItem])
-		setSelectedValues((prev) => [...prev, newItem])
-		setInputValue('')
-		setOpen(false)
-	}
+	// 	setItems((prev) => [...prev, newItem])
+	// 	setSelectedValues((prev) => [...prev, newItem])
+	// 	setInputValue('')
+	// 	setOpen(false)
+	// }
+
+	const [openLocation, setOpenLocation] = useState(false)
+	const [location, setLocation] = useState({ name: '', address: '' })
+
+	const locationNotEmpty = location.name !== '' && location.address !== ''
 
 	return (
 		<div className="absolute inset-0">
@@ -160,6 +171,42 @@ export function MeetupEditor({
 					</div>
 
 					<div className="space-y-2">
+						<Button
+							variant="outline"
+							role="button"
+							aria-expanded={openLocation}
+							className="w-full justify-between"
+							onClick={() => setOpenLocation(true)}
+						>
+							{locationNotEmpty ? (
+								<span className="flex items-center">
+									<Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" />
+									<div className="text-left">
+										<div className="font-medium">{location.name}</div>
+										<div className="text-xs text-muted-foreground">
+											{location.address}
+										</div>
+									</div>
+								</span>
+							) : (
+								<span className="text-muted-foreground">
+									Select coffee shop...
+								</span>
+							)}
+
+							<Icon
+								name="chevron-down"
+								className="ml-2 h-4 w-4 shrink-0 opacity-50"
+							/>
+						</Button>
+						<CommandPreview
+							open={openLocation}
+							setOpen={setOpenLocation}
+							setLocation={setLocation}
+						/>
+					</div>
+
+					{/* <div className="space-y-2">
 						<Label
 							htmlFor="topics"
 							className="flex items-center text-sm font-medium"
@@ -256,7 +303,7 @@ export function MeetupEditor({
 									{err}
 								</p>
 							))
-						: null}
+						: null} */}
 				</Form>
 				<div className={floatingToolbarClassName}>
 					<Button variant="destructive" {...form.reset.getButtonProps()}>
