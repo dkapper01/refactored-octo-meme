@@ -1,44 +1,48 @@
 import {
 	FormProvider,
-	// getFieldsetProps,
 	getFormProps,
 	getInputProps,
-	// getTextareaProps,
 	useForm,
-	// type FieldMetadata,
 } from '@conform-to/react'
 
-import { parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+
 import { type Meetup } from '@prisma/client'
-import {
-	type SerializeFrom,
-	// json,
-	// type LoaderFunctionArgs,
-} from '@remix-run/node'
+import { type SerializeFrom } from '@remix-run/node'
 
-import {
-	Form,
-	useLoaderData,
-	// useActionData,
-	// useIsPending,
-} from '@remix-run/react'
-// import { useState } from 'react'
+import { Form, useLoaderData, useActionData } from '@remix-run/react'
+import React, { useState } from 'react'
 import { z } from 'zod'
-import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
+// import CreatableMultiselect from '#app/components/creatable-multiselect.tsx'
+// import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
-
 import { Field, TextareaField } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
+import {
+	Command,
+	CommandEmpty,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '#app/components/ui/command'
+import { Icon } from '#app/components/ui/icon'
+
 import { Label } from '#app/components/ui/label.tsx'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '#app/components/ui/popover'
+
 import { StatusButton } from '#app/components/ui/status-button.tsx'
-import { useIsPending } from '#app/utils/misc.tsx'
+import { cn, useIsPending } from '#app/utils/misc.tsx'
 
-import { type loader } from './__meetup-editor.server'
+import { type loader, type action } from './__meetup-editor.server'
 
-// import { Icon } from '#app/components/ui/icon.tsx'
-// import { Textarea } from '#app/components/ui/textarea.tsx'
-// import CommandPreview from '#app/components/command-preveiw.tsx'
-// import DateTimePicker from '#app/components/date-time-picker.tsx'
+const TopicSchema = z.object({
+	id: z.string().optional(),
+	name: z.string(),
+})
 
 export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
@@ -48,80 +52,73 @@ export const MeetupEditorSchema = z.object({
 	description: z.string().min(10, {
 		message: 'Description must be at least 10 characters.',
 	}),
-	// location: z.string({
-	// 	required_error: 'Please select a location.',
-	// }),
-	// description: z.string().min(10, {
-	// 	message: 'Description must be at least 10 characters.',
-	// }),
-	// tags: z
-	// 	.array(
-	// 		z.object({
-	// 			value: z.string(),
-	// 			label: z.string(),
-	// 		}),
-	// 	)
-	// 	.min(1, {
-	// 		message: 'Please select at least one tag.',
-	// 	}),
-	// startTime: z.date({
-	// 	required_error: 'Please select a start time.',
-	// }),
+	topics: z.array(TopicSchema).min(1, {
+		message: 'Please select at least one topic.',
+	}),
 })
 
 export function MeetupEditor({
 	meetup,
 }: {
-	meetup?: SerializeFrom<Pick<Meetup, 'id' | 'title' | 'description'>>
+	meetup?: SerializeFrom<
+		Pick<Meetup, 'id' | 'title' | 'description'> & {
+			topics: Array<{ id: string; name: string }>
+		}
+	>
 }) {
 	const { topics = [] } = useLoaderData<typeof loader>()
+
+	const actionData = useActionData<typeof action>()
+
 	const isPending = useIsPending()
 
 	const [form, fields] = useForm({
 		id: 'meetup-form',
+		constraint: getZodConstraint(MeetupEditorSchema),
+		// lastResult: actionData?.result,
+		// shouldValidate: 'onBlur',
 		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: MeetupEditorSchema })
+			return parseWithZod(formData, {
+				schema: MeetupEditorSchema,
+			})
 		},
 		defaultValue: {
 			id: meetup?.id,
 			title: meetup?.title ?? '',
 			description: meetup?.description ?? '',
+			topics: meetup?.topics ?? [{}],
 		},
 	})
+	const topicsList = fields.topics.getFieldList()
 
-	// const handleSubmit = async (e: React.FormEvent) => {
-	// 	e.preventDefault()
-	// 	setIsSubmitting(true)
-	// 	// Simulate API call
-	// 	await new Promise((resolve) => setTimeout(resolve, 1500))
+	const [open, setOpen] = useState(false)
+	const [inputValue, setInputValue] = useState('')
+	const [selectedValues, setSelectedValues] = useState<
+		Array<{ id: string; name: string }>
+	>([])
+	const [items, setItems] = useState(topics)
 
-	// const form = useForm<z.infer<typeof MeetupEditorSchema>>({
-	// 	resolver: zodResolver(MeetupEditorSchema),
-	// 	defaultValues: {
-	// 		title: '',
-	// 		location: '',
-	// 		description: '',
-	// 		tags: [],
-	// 		startTime: new Date(),
-	// 	},
-	// })
+	function onSelect(item: { id: string; name: string }) {
+		setSelectedValues((prev) =>
+			prev.some((i) => i.id === item.id)
+				? prev.filter((i) => i.id !== item.id)
+				: [...prev, item],
+		)
+		setOpen(false)
+	}
 
-	// function handleSubmit(values: z.infer<typeof MeetupEditorSchema>) {
-	// 	const formattedValues = {
-	// 		...values,
-	// 		tags: values.tags.map((tag) => tag.value),
-	// 	}
-	// 	onSubmit(formattedValues)
-	// 	form.reset()
-	// }
+	function onCreate(value: string) {
+		// For demonstration, just use the same string for `id` & `name`
+		// In reality, you might do something like:
+		// const generatedId = nanoid();
+		// { id: generatedId, name: value }
+		const newItem = { id: value, name: value }
 
-	// const handleCreateTag = (inputValue: string) => {
-	// 	const newTag = { value: inputValue.toLowerCase(), label: inputValue }
-	// 	setTags((prevTags) => [...prevTags, newTag])
-	// 	const currentTags = form.getValues('tags')
-	// 	form.setValue('tags', [...currentTags, newTag], { shouldValidate: true })
-	// 	return newTag
-	// }
+		setItems((prev) => [...prev, newItem])
+		setSelectedValues((prev) => [...prev, newItem])
+		setInputValue('')
+		setOpen(false)
+	}
 
 	return (
 		<div className="absolute inset-0">
@@ -132,6 +129,13 @@ export function MeetupEditor({
 					{...getFormProps(form)}
 					encType="multipart/form-data"
 				>
+					{/*
+					This hidden submit button is here to ensure that when the user hits
+					"enter" on an input field, the primary form function is submitted
+					rather than the first button in the form (which is delete/add image).
+				*/}
+					<button type="submit" className="hidden" />
+
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
 					<div className="space-y-2">
 						<Field
@@ -144,8 +148,6 @@ export function MeetupEditor({
 							}}
 							errors={fields.title.errors}
 						/>
-						{/* </div>
-					<div className="space-y-2"> */}
 						<TextareaField
 							labelProps={{ children: 'Description' }}
 							textareaProps={{
@@ -157,92 +159,105 @@ export function MeetupEditor({
 							errors={fields.description.errors}
 						/>
 					</div>
-					{/* <div className="space-y-2">
-					<Label
-						htmlFor="location"
-						className="flex items-center text-sm font-medium"
-					>
-						Location
-					</Label>
-					<Button
-						variant="outline"
-						role="button"
-						aria-expanded={isCommandOpen}
-						className="w-full justify-between"
-						onClick={() => setIsCommandOpen(true)}
-					>
-						{location.name ? (
-							<span className="flex items-center">
-								<Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" />
-								<div className="text-left">
-									<div className="font-medium">{location.name}</div>
-									<div className="text-xs text-muted-foreground">
-										{location.address}
-									</div>
-								</div>
-							</span>
-						) : (
-							<span className="text-muted-foreground">
-								Select coffee shop...
-							</span>
-						)}
 
-						<Icon
-							name="chevron-down"
-							className="ml-2 h-4 w-4 shrink-0 opacity-50"
-						/>
-					</Button>
-					<CommandPreview
-						open={isCommandOpen}
-						setOpen={setIsCommandOpen}
-						setLocation={setLocation}
-					/>
-				</div> */}
-					{/* <div className="space-y-2">
-					<Label
-						htmlFor="date"
-						className="flex items-center text-sm font-medium"
-					>
-						Start Time
-					</Label>
-					<DateTimePicker date={date} setDate={setDate} />
-				</div> */}
-
-					{/* <div className="space-y-2">
-					<Label
-						htmlFor="description"
-						className="flex items-center text-sm font-medium"
-					>
-						Description
-					</Label>
-					<Textarea
-						id="description"
-						name="description"
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-						placeholder="Write a short description of your meetup..."
-						className="min-h-[100px] border-primary/20 focus:border-primary focus:ring-primary"
-						required
-					/>
-				</div> */}
 					<div className="space-y-2">
 						<Label
-							htmlFor="tags"
+							htmlFor="topics"
 							className="flex items-center text-sm font-medium"
 						>
 							Tags
 						</Label>
-						<CreatableMultiselect topics={topics} />
+
+						{selectedValues.map((topic, index) => (
+							<React.Fragment key={topic.id}>
+								<input
+									// type="hidden"
+									name={`topics[${index}].id`}
+									value={topic.id}
+								/>
+								<input
+									// type="hidden"
+									name={`topics[${index}].name`}
+									value={topic.name}
+								/>
+							</React.Fragment>
+						))}
+
+						<Popover open={open} onOpenChange={setOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									role="combobox"
+									aria-expanded={open}
+									className="w-full justify-between"
+								>
+									{selectedValues.length > 0
+										? items
+												.filter((item) =>
+													selectedValues.some((i) => i.id === item.id),
+												)
+												.map((item) => item.name)
+												.join(', ')
+										: 'Select or create...'}
+									<Icon
+										name="chevron-up-down"
+										className="ml-2 h-4 w-4 shrink-0 opacity-50"
+									/>
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-80 p-0">
+								<Command>
+									<CommandInput
+										placeholder="Search or create..."
+										value={inputValue}
+										onValueChange={setInputValue}
+									/>
+
+									<CommandEmpty>
+										{inputValue && (
+											<Button
+												variant="ghost"
+												className="w-full justify-start"
+												onClick={() => onCreate(inputValue)}
+											>
+												<Icon name="plus-circle" className="mr-2 h-4 w-4" />
+												Create "{inputValue}"
+											</Button>
+										)}
+									</CommandEmpty>
+									<CommandList>
+										{(items || []).map((item) => (
+											<CommandItem
+												key={item.id}
+												value={item.name}
+												onSelect={() => {
+													onSelect(item)
+												}}
+											>
+												<Icon
+													name="check"
+													className={cn(
+														'mr-2',
+														selectedValues.some((i) => i.id === item.id)
+															? 'opacity-100'
+															: 'opacity-0',
+													)}
+												/>
+												{item.name}
+											</CommandItem>
+										))}
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
 					</div>
-					{/* <Button
-						type="submit"
-						className="mt-10 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-						// disabled={isSubmitting}
-						// onClick={handleSubmit}
-					>
-						Publish Meetup
-					</Button> */}
-					{/* <ErrorList id={form.errorId} errors={form.errors} /> */}
+					{fields.topics.errors?.length
+						? fields.topics.errors.map((err, i) => (
+								<p key={i} className="mt-1 text-sm text-red-500">
+									{err}
+								</p>
+							))
+						: null}
 				</Form>
 				<div className={floatingToolbarClassName}>
 					<Button variant="destructive" {...form.reset.getButtonProps()}>
@@ -261,3 +276,15 @@ export function MeetupEditor({
 		</div>
 	)
 }
+
+// export function ErrorBoundary() {
+// 	return (
+// 		<GeneralErrorBoundary
+// 			statusHandlers={{
+// 				404: ({ params }) => (
+// 					<p>No note with the id "{params.noteId}" exists</p>
+// 				),
+// 			}}
+// 		/>
+// 	)
+// }
