@@ -42,6 +42,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			ownerId: true,
 			description: true,
 			updatedAt: true,
+			topics: true,
 		},
 	})
 
@@ -113,6 +114,9 @@ export default function MeetupRoute() {
 			<p className="whitespace-break-spaces text-sm md:text-lg">
 				{data.meetup.description}
 			</p>
+			{data.meetup.topics.map((topic) => (
+				<p key={topic.id}>{topic.name}</p>
+			))}
 			{/* <div className={`${displayBar ? 'pb-24' : 'pb-12'} overflow-y-auto`}>
 				<ul className="flex flex-wrap gap-5 py-5">
 					{data.note.images.map((image) => (
