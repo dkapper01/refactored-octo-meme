@@ -13,38 +13,38 @@ import { Icon } from '#app/components/ui/icon.tsx'
 import { cn } from '#app/utils/misc.tsx'
 
 interface Location {
-	id: number
+	id: string
 	name: string
 	address: {
 		street: string
 		city: string
 		state: string
 		zip: string
-	}
+	} | null
 }
 
-const location = [
-	{
-		id: 1,
-		name: 'Capital One Café - Assembly Row',
-		address: {
-			street: '425 Revolution Dr',
-			city: 'Somerville',
-			state: 'MA',
-			zip: '02145',
-		},
-	},
-	{
-		id: 2,
-		name: 'Capital One Café - Back Bay',
-		address: {
-			street: '711 Boylston Street',
-			city: 'Boston',
-			state: 'MA',
-			zip: '02116',
-		},
-	},
-]
+// const location = [
+// 	{
+// 		id: 1,
+// 		name: 'Capital One Café - Assembly Row',
+// 		address: {
+// 			street: '425 Revolution Dr',
+// 			city: 'Somerville',
+// 			state: 'MA',
+// 			zip: '02145',
+// 		},
+// 	},
+// 	{
+// 		id: 2,
+// 		name: 'Capital One Café - Back Bay',
+// 		address: {
+// 			street: '711 Boylston Street',
+// 			city: 'Boston',
+// 			state: 'MA',
+// 			zip: '02116',
+// 		},
+// 	},
+// ]
 
 // combine address and city
 const combineAddress = (address: {
@@ -56,23 +56,27 @@ const combineAddress = (address: {
 	return `${address.street}, ${address.city}, ${address.state} ${address.zip}`
 }
 
-const recent = [location[0], location[1]]
-
 export default function CommandPreview({
 	open,
 	setOpen,
 	setLocation,
+	locations = [],
 }: {
 	open: boolean
 	setOpen: (open: boolean) => void
 	setLocation: (location: { name: string; address: string }) => void
+	locations: Location[]
 }) {
+	const recent = [locations[0]]
+
+	console.log('command preview', locations)
+
 	const [query, setQuery] = useState<string>('')
 
 	const filteredLocation =
 		query === ''
 			? []
-			: location.filter((location) => {
+			: locations.filter((location) => {
 					return location.name.toLowerCase().includes(query.toLowerCase())
 				})
 
@@ -184,7 +188,11 @@ export default function CommandPreview({
 														<dt className="col-end-1 font-semibold text-gray-900">
 															Address
 														</dt>
-														<dd>{combineAddress(activeOption.address)}</dd>
+														<dd>
+															{activeOption.address
+																? combineAddress(activeOption.address)
+																: 'No address available'}
+														</dd>
 													</dl>
 													<Button
 														type="button"
@@ -192,7 +200,9 @@ export default function CommandPreview({
 															setOpen(false)
 															setLocation({
 																name: activeOption.name,
-																address: combineAddress(activeOption.address),
+																address: activeOption.address
+																	? combineAddress(activeOption.address)
+																	: 'No address available',
 															})
 														}}
 													>

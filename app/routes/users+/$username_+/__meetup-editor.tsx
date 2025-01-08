@@ -12,7 +12,7 @@ import { type SerializeFrom } from '@remix-run/node'
 
 import {
 	Form,
-	// useLoaderData,
+	useLoaderData,
 	// useActionData
 } from '@remix-run/react'
 import React, { useState } from 'react'
@@ -43,7 +43,7 @@ import {
 	useIsPending,
 } from '#app/utils/misc.tsx'
 
-// import { type loader, type action } from './__meetup-editor.server'
+import { type loader } from './__meetup-editor.server'
 
 // const TopicSchema = z.object({
 // 	id: z.string().optional(),
@@ -72,7 +72,7 @@ export function MeetupEditor({
 		}
 	>
 }) {
-	// const { topics = [] } = useLoaderData<typeof loader>()
+	const data = useLoaderData<typeof loader>()
 
 	// const actionData = useActionData<typeof action>()
 
@@ -200,6 +200,7 @@ export function MeetupEditor({
 							/>
 						</Button>
 						<CommandPreview
+							locations={data.locations}
 							open={openLocation}
 							setOpen={setOpenLocation}
 							setLocation={setLocation}

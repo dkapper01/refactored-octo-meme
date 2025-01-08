@@ -23,41 +23,50 @@ model User {
   password    Password?
   notes       Note[]
   meetups     Meetup[]
-  // meetups     Meetup[]
+
   roles       Role[]
   sessions    Session[]
   connections Connection[]
 }
 
 model Meetup {
-  id      String @id @default(cuid())
-  title   String @default("Untitled Meetup")
-  // startTime DateTime
-  description String @default("")
-  topics Topic[]
-  // location Location[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  ownerId String
-
-}
-
-model Topic {
-  id      String @id @default(cuid())
-  name String
-  
-  meetups Meetup[]
+  id          String    @id @default(cuid())
+  title       String    @default("Untitled Meetup")
+  description String    @default("")
+  location    Location?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     String
 }
 
 model Location {
-  id      String @id @default(cuid())
-  name String
-  address String @unique
-  // meetups Meetup[]
+  id       String   @id @default(cuid())
+  name     String
+  address  Address?
+  meetup   Meetup?  @relation(fields: [meetupId], references: [id])
+  meetupId String?   @unique
 }
+
+// model Topic {
+//   id      String @id @default(cuid())
+//   name String
+  
+//   meetups Meetup[]
+// }
+
+model Address {
+  id      String @id @default(cuid())
+  street  String @unique
+  city    String
+  state   String
+  zip     String
+  country String @default("USA")
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  locationId String @unique
+}
+
 
 model Note {
   id      String @id @default(cuid())

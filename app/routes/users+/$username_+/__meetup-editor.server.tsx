@@ -11,8 +11,27 @@ import { prisma } from '#app/utils/db.server.ts'
 import { MeetupEditorSchema } from './__meetup-editor'
 
 export async function loader({}: LoaderFunctionArgs) {
-	const topics = await prisma.topic.findMany()
-	return json({ topics })
+	const locations = await prisma.location.findMany({
+		select: {
+			id: true,
+			name: true,
+			address: {
+				select: {
+					street: true,
+					city: true,
+					state: true,
+					zip: true,
+				},
+			},
+		},
+	})
+
+	if (!locations) {
+		// Handle the case where locations is null or undefined
+		return json({ locations: [] }, { status: 404 }) // or any appropriate status
+	}
+
+	return json({ locations })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -59,19 +78,10 @@ export async function action({ request }: ActionFunctionArgs) {
 			ownerId: userId,
 			title,
 			description,
-			// topics: {
-			// 	create: newTopics.map((topic) => ({ name: topic.name })),
-			// 	connect: existingTopics.map((topic) => ({ id: topic.id })),
-			// },
 		},
 		update: {
 			title,
 			description,
-			// topics: {
-			// 	connect: existingTopics.map((topic) => ({ id: topic.id })),
-			// 	create: newTopics.map((topic) => ({ name: topic.name })),
-			// 	disconnect: topicsToDisconnect,
-			// },
 		},
 		select: {
 			id: true,
