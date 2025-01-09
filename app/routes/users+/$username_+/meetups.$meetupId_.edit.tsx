@@ -16,6 +16,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 			id: true,
 			title: true,
 			description: true,
+			location: true,
 			// topics: true,
 		},
 		where: {

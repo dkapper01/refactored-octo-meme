@@ -23,30 +23,6 @@ interface Location {
 	} | null
 }
 
-// const location = [
-// 	{
-// 		id: 1,
-// 		name: 'Capital One Café - Assembly Row',
-// 		address: {
-// 			street: '425 Revolution Dr',
-// 			city: 'Somerville',
-// 			state: 'MA',
-// 			zip: '02145',
-// 		},
-// 	},
-// 	{
-// 		id: 2,
-// 		name: 'Capital One Café - Back Bay',
-// 		address: {
-// 			street: '711 Boylston Street',
-// 			city: 'Boston',
-// 			state: 'MA',
-// 			zip: '02116',
-// 		},
-// 	},
-// ]
-
-// combine address and city
 const combineAddress = (address: {
 	street: string
 	city: string
@@ -64,12 +40,10 @@ export default function CommandPreview({
 }: {
 	open: boolean
 	setOpen: (open: boolean) => void
-	setLocation: (location: { name: string; address: string }) => void
+	setLocation: (location: { id: string; name: string; address: string }) => void
 	locations: Location[]
 }) {
-	const recent = [locations[0]]
-
-	console.log('command preview', locations)
+	const recent = [locations[0], locations[1]]
 
 	const [query, setQuery] = useState<string>('')
 
@@ -199,6 +173,7 @@ export default function CommandPreview({
 														onClick={() => {
 															setOpen(false)
 															setLocation({
+																id: activeOption.id,
 																name: activeOption.name,
 																address: activeOption.address
 																	? combineAddress(activeOption.address)

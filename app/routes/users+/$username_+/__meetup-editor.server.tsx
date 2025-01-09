@@ -25,13 +25,7 @@ export async function loader({}: LoaderFunctionArgs) {
 			},
 		},
 	})
-
-	if (!locations) {
-		// Handle the case where locations is null or undefined
-		return json({ locations: [] }, { status: 404 }) // or any appropriate status
-	}
-
-	return json({ locations })
+	return json({ locations: locations })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -74,20 +68,22 @@ export async function action({ request }: ActionFunctionArgs) {
 	// Upsert the meetup
 	const meetup = await prisma.meetup.upsert({
 		where: { id: meetupId ?? '__new_meetup__' },
-		create: {
-			ownerId: userId,
-			title,
-			description,
-		},
-		update: {
-			title,
-			description,
-		},
 		select: {
 			id: true,
 			owner: {
 				select: { username: true },
 			},
+		},
+		create: {
+			ownerId: userId,
+			title,
+			description,
+			locationId: formData.get('locationId') as string,
+		},
+		update: {
+			title,
+			description,
+			locationId: formData.get('locationId') as string,
 		},
 	})
 

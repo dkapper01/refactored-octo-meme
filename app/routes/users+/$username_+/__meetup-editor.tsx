@@ -58,6 +58,7 @@ export const MeetupEditorSchema = z.object({
 	description: z.string().min(10, {
 		message: 'Description must be at least 10 characters.',
 	}),
+	locationId: z.string(),
 	// topics: z.array(TopicSchema).min(1, {
 	// 	message: 'Please select at least one topic.',
 	// }),
@@ -68,11 +69,13 @@ export function MeetupEditor({
 }: {
 	meetup?: SerializeFrom<
 		Pick<Meetup, 'id' | 'title' | 'description'> & {
-			topics: Array<{ id: string; name: string }>
+			location: { id: string; name: string } | null
 		}
 	>
 }) {
 	const data = useLoaderData<typeof loader>()
+
+	console.log('data look for location', data)
 
 	// const actionData = useActionData<typeof action>()
 
@@ -126,7 +129,11 @@ export function MeetupEditor({
 	// }
 
 	const [openLocation, setOpenLocation] = useState(false)
-	const [location, setLocation] = useState({ name: '', address: '' })
+	const [location, setLocation] = useState<{
+		id?: string
+		name: string
+		address: string
+	}>({ name: '', address: '' })
 
 	const locationNotEmpty = location.name !== '' && location.address !== ''
 
@@ -199,11 +206,18 @@ export function MeetupEditor({
 								className="ml-2 h-4 w-4 shrink-0 opacity-50"
 							/>
 						</Button>
+						{/* Update to get locationId from setLocation */}
+						{location.name ? (
+							<input type="text" name="locationId" value={location.id} />
+						) : null}
+
 						<CommandPreview
 							locations={data.locations}
 							open={openLocation}
 							setOpen={setOpenLocation}
-							setLocation={setLocation}
+							setLocation={({ id, name, address }) =>
+								setLocation({ id, name, address })
+							}
 						/>
 					</div>
 
