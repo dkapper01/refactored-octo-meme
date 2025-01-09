@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { Icon } from '#app/components/ui/icon.tsx'
 import { DayPicker } from 'react-day-picker'
 import { buttonVariants } from '#app/components/ui/button'
+import { Icon } from '#app/components/ui/icon.tsx'
 
 import { cn } from '#app/utils/misc.tsx'
 

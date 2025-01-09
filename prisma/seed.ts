@@ -219,6 +219,43 @@ async function seed() {
 	})
 	console.timeEnd(`🐨 Created admin user "kody"`)
 
+	try {
+		const locations = [
+			{
+				name: 'Capital One Café - Assembly Row',
+				address: {
+					create: {
+						street: '425 Revolution Dr',
+						city: 'Somerville',
+						state: 'MA',
+						zip: '02145',
+						country: 'USA',
+					},
+				},
+			},
+			{
+				name: 'Capital One Café - Back Bay',
+				address: {
+					create: {
+						street: '711 Boylston Street',
+						city: 'Boston',
+						state: 'MA',
+						zip: '02116',
+						country: 'USA',
+					},
+				},
+			},
+		]
+
+		console.time('📍 Created locations')
+		await prisma.$transaction(
+			locations.map((location) => prisma.location.create({ data: location })),
+		)
+		console.timeEnd('📍 Created locations')
+	} catch (error) {
+		console.error('Error seeding locations:', error)
+	}
+
 	console.timeEnd(`🌱 Database has been seeded`)
 }
 

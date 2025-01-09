@@ -8,71 +8,50 @@ import {
 	DialogBackdrop,
 } from '@headlessui/react'
 import { useState } from 'react'
+import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
+import { cn } from '#app/utils/misc.tsx'
 
-interface Person {
-	id: number
+interface Location {
+	id: string
 	name: string
-	address: string
-	email: string
-	website: string
-	profileUrl: string
-	imageUrl: string
+	address: {
+		street: string
+		city: string
+		state: string
+		zip: string
+	} | null
 }
 
-const location = [
-	{
-		id: 1,
-		name: 'Capital One Café',
-		address: '425 Revolution Dr, Somerville, MA 02145',
-		email: 'lesliealexander@example.com',
-		website:
-			'https://www.capitalone.com/local/boston-assemblyrow/?utm_source=PowerListings&utm_medium=Local&utm_campaign=Yext',
-		profileUrl: '#',
-		imageUrl: 'https://unsplash.com/photos/man-inside-the-stall-TT6Hep-JzrU',
-	},
-	{
-		id: 2,
-		name: 'Leslie Alexander',
-		address: '1-493-747-9031',
-		email: 'lesliealexander@example.com',
-		website: 'https://example.com',
-		profileUrl: '#',
-		imageUrl: 'https://unsplash.com/photos/man-inside-the-stall-TT6Hep-JzrU',
-	},
-	{
-		id: 3,
-		name: 'Leslie Alexander',
-		address: '1-493-747-9031',
-		email: 'lesliealexander@example.com',
-		website: 'https://example.com',
-		profileUrl: '#',
-		imageUrl: 'https://unsplash.com/photos/man-inside-the-stall-TT6Hep-JzrU',
-	},
-]
-
-const recent = [location[0]]
-
-function classNames(...classes: string[]) {
-	return classes.filter(Boolean).join(' ')
+const combineAddress = (address: {
+	street: string
+	city: string
+	state: string
+	zip: string
+}) => {
+	return `${address.street}, ${address.city}, ${address.state} ${address.zip}`
 }
 
 export default function CommandPreview({
 	open,
 	setOpen,
 	setLocation,
+	locations = [],
 }: {
 	open: boolean
 	setOpen: (open: boolean) => void
-	setLocation: (location: { name: string; address: string }) => void
+	setLocation: (location: { id: string; name: string; address: string }) => void
+	locations: Location[]
 }) {
+	const recent = [locations[0], locations[1]]
+
 	const [query, setQuery] = useState<string>('')
 
 	const filteredLocation =
 		query === ''
 			? []
-			: location.filter((person) => {
-					return person.name.toLowerCase().includes(query.toLowerCase())
+			: locations.filter((location) => {
+					return location.name.toLowerCase().includes(query.toLowerCase())
 				})
 
 	return (
@@ -94,7 +73,7 @@ export default function CommandPreview({
 					transition
 					className="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition-all data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 				>
-					<Combobox<Person> onChange={() => {}}>
+					<Combobox<Location> onChange={() => {}}>
 						{({ activeOption }) => (
 							<div>
 								<div className="grid grid-cols-1">
@@ -124,34 +103,34 @@ export default function CommandPreview({
 										className="flex transform-gpu divide-x divide-gray-100"
 									>
 										<div
-											className={classNames(
+											className={cn(
 												'max-h-96 min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4',
 												activeOption ? 'sm:h-96' : '',
 											)}
 										>
 											{query === '' && (
 												<h2 className="mb-4 mt-2 text-xs font-semibold text-gray-500">
-													Recent searches
+													Available locations
 												</h2>
 											)}
 											<div className="-mx-2 text-sm text-gray-700">
 												{(query === '' ? recent : filteredLocation).map(
-													(person) => {
-														if (!person) return null
+													(location) => {
+														if (!location) return null
 														return (
 															<ComboboxOption
 																as="div"
-																key={person.id}
-																value={person}
+																key={location.id}
+																value={location}
 																className="group flex cursor-default select-none items-center rounded-md p-2 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
 															>
 																{/* <img
-																	src={person.imageUrl}
+																	src={location.imageUrl}
 																	alt=""
 																	className="size-6 flex-none rounded-full"
 																/> */}
 																<span className="ml-3 flex-auto truncate">
-																	{person.name}
+																	{location.name}
 																</span>
 																<Icon
 																	name="chevron-right"
@@ -168,11 +147,11 @@ export default function CommandPreview({
 										{activeOption && (
 											<div className="hidden h-96 w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
 												<div className="flex-none bg-red-500 text-center">
-													<img
+													{/* <img
 														src={activeOption.imageUrl}
 														alt=""
 														className="mx-auto object-cover"
-													/>
+													/> */}
 												</div>
 												<div className="flex flex-auto flex-col justify-between p-6">
 													<dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm text-gray-700">
@@ -183,21 +162,27 @@ export default function CommandPreview({
 														<dt className="col-end-1 font-semibold text-gray-900">
 															Address
 														</dt>
-														<dd>{activeOption.address}</dd>
+														<dd>
+															{activeOption.address
+																? combineAddress(activeOption.address)
+																: 'No address available'}
+														</dd>
 													</dl>
-													<button
+													<Button
 														type="button"
-														className="mt-6 w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 														onClick={() => {
 															setOpen(false)
 															setLocation({
+																id: activeOption.id,
 																name: activeOption.name,
-																address: activeOption.address,
+																address: activeOption.address
+																	? combineAddress(activeOption.address)
+																	: 'No address available',
 															})
 														}}
 													>
 														Select
-													</button>
+													</Button>
 												</div>
 											</div>
 										)}
@@ -215,8 +200,7 @@ export default function CommandPreview({
 											No location found
 										</p>
 										<p className="mt-2 text-gray-500">
-											We couldn’t find anything with that term. Please try
-											again.
+											Sorry, we are working on adding more locations.
 										</p>
 									</div>
 								)}

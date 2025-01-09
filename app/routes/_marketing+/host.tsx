@@ -79,6 +79,7 @@ export default function HostRoute() {
 						open={isCommandOpen}
 						setOpen={setIsCommandOpen}
 						setLocation={setLocation}
+						locations={[]}
 					/>
 				</div>
 				<div className="space-y-2">
