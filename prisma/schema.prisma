@@ -33,7 +33,8 @@ model Meetup {
   id          String    @id @default(cuid())
   title       String    @default("Untitled Meetup")
   description String    @default("")
-  locationId  String?   // <-- the foreign key
+  startTime   DateTime
+  locationId  String?
   location    Location? @relation(fields: [locationId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -45,8 +46,10 @@ model Location {
   id       String   @id @default(cuid())
   name     String
   address  Address?
-  meetups  Meetup[] // <-- one Location => many Meetups
+  meetups  Meetup[]
+  hoursOfOperation HoursOfOperation[]
 }
+
 model Address {
   id      String @id @default(cuid())
   street  String @unique
@@ -58,6 +61,19 @@ model Address {
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   locationId String @unique
 }
+
+
+model HoursOfOperation {
+  id           String   @id @default(uuid())
+  // dayOfWeek is now just a String
+  dayOfWeek    String
+  openTime     String
+  closeTime    String
+  locationId   String
+  location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+}
+
 
 
 model Note {
