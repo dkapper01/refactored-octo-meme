@@ -23,9 +23,19 @@ export async function loader({}: LoaderFunctionArgs) {
 					zip: true,
 				},
 			},
+			hoursOfOperation: {
+				select: {
+					id: true,
+					dayOfWeek: true,
+					openTime: true,
+					closeTime: true,
+					locationId: true,
+				},
+			},
 		},
 	})
-	return json({ locations: locations })
+
+	return json({ locations })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -68,22 +78,22 @@ export async function action({ request }: ActionFunctionArgs) {
 	// Upsert the meetup
 	const meetup = await prisma.meetup.upsert({
 		where: { id: meetupId ?? '__new_meetup__' },
-		select: {
-			id: true,
-			owner: {
-				select: { username: true },
-			},
-		},
 		create: {
 			ownerId: userId,
 			title,
 			description,
 			locationId: formData.get('locationId') as string,
+			startTime: new Date(),
 		},
 		update: {
 			title,
 			description,
 			locationId: formData.get('locationId') as string,
+			startTime: new Date(),
+		},
+		select: {
+			id: true,
+			owner: { select: { username: true } },
 		},
 	})
 

@@ -30,7 +30,7 @@ import {
 import { requireUserWithPermission } from '#app/utils/permissions.server.ts'
 import { redirectWithToast } from '#app/utils/toast.server.ts'
 import { userHasPermission, useOptionalUser } from '#app/utils/user.ts'
-import { DeleteNote } from './notes.$noteId'
+// import { DeleteNote } from './notes.$noteId'
 // import { type loader as notesLoader } from './notes.tsx'
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -42,7 +42,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			ownerId: true,
 			description: true,
 			updatedAt: true,
-			// topics: true,
+			location: true,
 		},
 	})
 
@@ -109,32 +109,39 @@ export default function MeetupRoute() {
 	const displayBar = canDelete || isOwner
 
 	return (
-		<div className="absolute inset-0 flex flex-col px-10">
-			<h2 className="mb-2 pt-12 text-h2 lg:mb-6">{data.meetup.title}</h2>
-			<p className="whitespace-break-spaces text-sm md:text-lg">
-				{data.meetup.description}
-			</p>
-			{/* {data.meetup.topics.map((topic) => (
-				<p key={topic.id}>{topic.name}</p>
-			))} */}
-			{/* <div className={`${displayBar ? 'pb-24' : 'pb-12'} overflow-y-auto`}>
-				<ul className="flex flex-wrap gap-5 py-5">
-					{data.note.images.map((image) => (
-						<li key={image.id}>
-							<a href={getNoteImgSrc(image.id)}>
-								<img
-									src={getNoteImgSrc(image.id)}
-									alt={image.altText ?? ''}
-									className="h-32 w-32 rounded-lg object-cover"
-								/>
-							</a>
-						</li>
-					))}
-				</ul>
-				<p className="whitespace-break-spaces text-sm md:text-lg">
-					{data.note.content}
-				</p>
-			</div> */}
+		<div className="relative flex flex-col">
+			<div className="min-h-[500px] overflow-hidden rounded-2xl bg-white shadow-sm">
+				<div className="relative h-48">
+					<img
+						// src={selectedMeetup.imageUrl}
+						src={
+							'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+						}
+						// alt={selectedMeetup.location}
+						className="h-48 w-full object-cover"
+						// layout="fill"
+						// objectFit="cover"
+					/>
+					<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+					<div className="absolute bottom-0 left-0 p-6">
+						<h2 className="mb-2 text-2xl font-bold text-white">
+							{data.meetup.title}
+						</h2>
+						<div className="flex items-center text-sm text-white/90">
+							<Icon name="calendar" className="mr-2 h-4 w-4" />
+							<span>Date here</span>
+						</div>
+					</div>
+				</div>
+				<div className="p-6">
+					<div className="mb-4 flex items-center text-sm text-gray-600">
+						<Icon name="map-pin" className="mr-2 h-5 w-5 text-primary" />
+						<span>{data.meetup.location?.name}</span>
+					</div>
+					<p className="mb-6 text-gray-700">{data.meetup.title}</p>
+				</div>
+			</div>
+
 			{displayBar ? (
 				<div className={floatingToolbarClassName}>
 					<span className="text-sm text-foreground/90 max-[524px]:hidden">
@@ -143,8 +150,8 @@ export default function MeetupRoute() {
 						</Icon>
 					</span>
 					<div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">
-						{/* {canDelete ? <DeleteMeetup id={data.meetup.id} /> : null} */}
-						<DeleteNote id={data.meetup.id} />
+						{canDelete ? <DeleteMeetup id={data.meetup.id} /> : null}
+						{/* <DeleteNote id={data.meetup.id} /> */}
 						<Button
 							asChild
 							className="min-[525px]:max-md:aspect-square min-[525px]:max-md:px-0"

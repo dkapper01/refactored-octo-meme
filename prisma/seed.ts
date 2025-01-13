@@ -104,6 +104,7 @@ async function seed() {
 
 	const githubUser = await insertGitHubUser(MOCK_CODE_GITHUB)
 
+	// Create user first
 	await prisma.user.create({
 		select: { id: true },
 		data: {
@@ -219,8 +220,11 @@ async function seed() {
 	})
 	console.timeEnd(`🐨 Created admin user "kody"`)
 
+	const kody = await prisma.user.findUnique({ where: { username: 'kody' } })
+	if (!kody) throw new Error('Failed to find kody user')
+
 	try {
-		const locations = [
+		const locationsData = [
 			{
 				name: 'Capital One Café - Assembly Row',
 				address: {
@@ -231,6 +235,17 @@ async function seed() {
 						zip: '02145',
 						country: 'USA',
 					},
+				},
+				hoursOfOperation: {
+					create: [
+						{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '17:00' },
+						{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '17:00' },
+						{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '17:00' },
+					],
 				},
 			},
 			{
@@ -244,16 +259,89 @@ async function seed() {
 						country: 'USA',
 					},
 				},
+				hoursOfOperation: {
+					create: [
+						{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+						{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '17:00' },
+						{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '17:00' },
+						{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '17:00' },
+					],
+				},
+			},
+			{
+				name: 'Starbucks - Central Square',
+				address: {
+					create: {
+						street: '450 Massachusetts Ave',
+						city: 'Cambridge',
+						state: 'MA',
+						zip: '02139',
+						country: 'USA',
+					},
+					hoursOfOperation: {
+						create: [
+							{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '18:00' },
+						],
+					},
+				},
 			},
 		]
 
 		console.time('📍 Created locations')
-		await prisma.$transaction(
-			locations.map((location) => prisma.location.create({ data: location })),
+		const locations = await prisma.$transaction(
+			locationsData.map((location) =>
+				prisma.location.create({ data: location }),
+			),
 		)
 		console.timeEnd('📍 Created locations')
+
+		const meetups = [
+			{
+				title: 'Morning Coffee & Code',
+				description: 'Start your day with coffee and coding!',
+				locationId: locations[0]?.id,
+				startTime: new Date('2024-03-25T09:00:00'),
+				ownerId: kody.id,
+			},
+			{
+				title: 'Afternoon Tech Talk',
+				description: 'Join us for an afternoon of tech discussions',
+				locationId: locations[1]?.id,
+				startTime: new Date('2024-03-26T14:00:00'),
+				ownerId: kody.id,
+			},
+			{
+				title: 'Evening Coding Session',
+				description: 'Wrap up your day with a coding session',
+				locationId: locations[0]?.id,
+				startTime: new Date('2024-03-27T18:00:00'),
+				ownerId: kody.id,
+			},
+			{
+				title: 'Midday Coding Session',
+				description: 'Take a break and code with us',
+				locationId: locations[1]?.id,
+				startTime: new Date('2024-03-28T12:00:00'),
+				ownerId: kody.id,
+			},
+		]
+
+		console.time('📅 Created meetups')
+		await prisma.$transaction(
+			meetups.map((meetup) => prisma.meetup.create({ data: meetup })),
+		)
+		console.timeEnd('📅 Created meetups')
 	} catch (error) {
-		console.error('Error seeding locations:', error)
+		console.error('Error seeding:', error)
 	}
 
 	console.timeEnd(`🌱 Database has been seeded`)

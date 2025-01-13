@@ -31,10 +31,6 @@ export default function CreatableMultiselect({
 	onChange?: (value: string[]) => void
 	errors?: string[]
 }) {
-	// console.log({
-	// 	topics,
-	// 	value,
-	// })
 	const [open, setOpen] = useState(false)
 	const [selectedValues, setSelectedValues] = useState<string[]>(value)
 	const [items, setItems] = useState<Item[]>(() => {
@@ -53,7 +49,7 @@ export default function CreatableMultiselect({
 		setSelectedValues(newSelected)
 		onChange?.(newSelected)
 	}
-	console.log('selectedValues', inputValue)
+
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>

@@ -236,7 +236,7 @@ function App() {
 						</div> */}
 						<div className="ml-auto mr-5">
 							<Button asChild>
-								<Link to={`/host`}>
+								<Link to={`/users/${user?.username}/meetups/new`}>
 									<Icon name="plus" size="lg" />
 									Host a Meetup
 								</Link>
