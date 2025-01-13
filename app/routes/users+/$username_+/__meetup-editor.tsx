@@ -4,9 +4,7 @@ import {
 	getInputProps,
 	useForm,
 } from '@conform-to/react'
-
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-
 import { type Meetup } from '@prisma/client'
 import { type SerializeFrom } from '@remix-run/node'
 
@@ -15,15 +13,18 @@ import {
 	useLoaderData,
 	// useActionData
 } from '@remix-run/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import CommandPreview from '#app/components/command-preveiw.tsx'
+import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Field, TextareaField } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon'
+import { Label } from '#app/components/ui/label.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
+import { combineAddress } from '#app/utils/combine-address.ts'
 import { useIsPending } from '#app/utils/misc.tsx'
 
 import { type loader } from './__meetup-editor.server'
@@ -39,6 +40,9 @@ export const MeetupEditorSchema = z.object({
 	locationId: z.string().min(1, {
 		message: 'Please select a location.',
 	}),
+	// startTime: z.string().min(1, {
+	// 	message: 'Please select a start time.',
+	// }),
 })
 
 export function MeetupEditor({
@@ -46,7 +50,16 @@ export function MeetupEditor({
 }: {
 	meetup?: SerializeFrom<
 		Pick<Meetup, 'id' | 'title' | 'description'> & {
-			location: { id: string; name: string } | null
+			location: {
+				id: string
+				name: string
+				address: {
+					street: string
+					city: string
+					state: string
+					zip: string
+				} | null
+			} | null
 		}
 	>
 }) {
@@ -71,7 +84,7 @@ export function MeetupEditor({
 			locationId: meetup?.location?.id ?? '',
 		},
 	})
-
+	const [date, setDate] = useState<Date | undefined>(undefined)
 	const [openLocation, setOpenLocation] = useState(false)
 	const [location, setLocation] = useState<{
 		id?: string
@@ -80,9 +93,21 @@ export function MeetupEditor({
 	}>({ id: '', name: '', address: '' })
 
 	const locationNotEmpty = location.name !== '' && location.address !== ''
+	const address = meetup?.location?.address
+		? combineAddress(meetup.location.address)
+		: ''
+
+	useEffect(() => {
+		setLocation({
+			id: meetup?.location?.id ?? '',
+			name: meetup?.location?.name ?? '',
+			address: address,
+		})
+	}, [meetup?.location, address])
 
 	return (
-		<div className="absolute inset-0">
+		<div className="relative min-h-[600px] rounded-2xl bg-white p-6 shadow-sm">
+			<h1 className="text-2xl font-bold">Create a Meetup</h1>
 			<FormProvider context={form.context}>
 				<Form
 					method="post"
@@ -119,19 +144,30 @@ export function MeetupEditor({
 							}}
 							errors={fields.description.errors}
 						/>
-					</div>
+						{/* </div>
 
-					<div className="space-y-2">
+					<div className="space-y-2"> */}
+						<Label>Location</Label>
 						<Button
+							type="button"
 							variant="outline"
 							role="button"
 							aria-expanded={openLocation}
 							className="w-full justify-between"
-							onClick={() => setOpenLocation(true)}
+							onClick={(e) => {
+								e.preventDefault()
+								setOpenLocation(true)
+							}}
 						>
 							{locationNotEmpty ? (
 								<span className="flex items-center">
-									<Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" />
+									{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
+									<img
+										src={
+											'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+										}
+										className="mr-2 h-6 w-6 rounded-full"
+									/>
 									<div className="text-left">
 										<div className="font-medium">{location.name}</div>
 										<div className="text-xs text-muted-foreground">
@@ -171,6 +207,20 @@ export function MeetupEditor({
 								setLocation({ id, name, address })
 							}
 						/>
+
+						{location.id && (
+							<DateTimePicker
+								// locationId={location.id}
+								hoursOfOperation={
+									data?.locations?.find(
+										(location) => location.id === location.id,
+									)?.hoursOfOperation ?? []
+								}
+								date={date}
+								setDate={setDate}
+								// errors={fields.startTime.errors}
+							/>
+						)}
 					</div>
 				</Form>
 				<div className={floatingToolbarClassName}>
