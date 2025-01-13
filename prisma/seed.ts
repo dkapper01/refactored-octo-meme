@@ -271,6 +271,29 @@ async function seed() {
 					],
 				},
 			},
+			{
+				name: 'Starbucks - Central Square',
+				address: {
+					create: {
+						street: '450 Massachusetts Ave',
+						city: 'Cambridge',
+						state: 'MA',
+						zip: '02139',
+						country: 'USA',
+					},
+					hoursOfOperation: {
+						create: [
+							{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '18:00' },
+							{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '18:00' },
+						],
+					},
+				},
+			},
 		]
 
 		console.time('📍 Created locations')
