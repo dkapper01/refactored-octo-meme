@@ -13,7 +13,7 @@ import {
 	useLoaderData,
 	// useActionData
 } from '@remix-run/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import CommandPreview from '#app/components/command-preveiw.tsx'
@@ -92,18 +92,19 @@ export function MeetupEditor({
 		address: string
 	}>({ id: '', name: '', address: '' })
 
-	const locationNotEmpty = location.name !== '' && location.address !== ''
 	const address = meetup?.location?.address
 		? combineAddress(meetup.location.address)
 		: ''
 
-	// useEffect(() => {
-	// 	setLocation({
-	// 		id: meetup?.location?.id ?? '',
-	// 		name: meetup?.location?.name ?? '',
-	// 		address: address,
-	// 	})
-	// }, [meetup?.location, address])
+	useEffect(() => {
+		if (meetup?.location) {
+			setLocation({
+				id: meetup?.location?.id ?? '',
+				name: meetup?.location?.name ?? '',
+				address: address,
+			})
+		}
+	}, [meetup?.location, address])
 
 	return (
 		<div className="relative min-h-[600px] rounded-2xl bg-white p-6 shadow-sm">
@@ -150,9 +151,6 @@ export function MeetupEditor({
 							}}
 							errors={fields.description.errors}
 						/>
-						{/* </div>
-
-					<div className="space-y-2"> */}
 						<Label>Location</Label>
 						<Button
 							type="button"
@@ -169,7 +167,6 @@ export function MeetupEditor({
 						>
 							{location.id ? (
 								<span className="flex items-center">
-									{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
 									<img
 										src={
 											'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
