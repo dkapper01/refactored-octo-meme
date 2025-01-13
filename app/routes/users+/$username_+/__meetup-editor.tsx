@@ -13,13 +13,13 @@ import {
 	useLoaderData,
 	// useActionData
 } from '@remix-run/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import CommandPreview from '#app/components/command-preveiw.tsx'
 import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
-import { Field, TextareaField } from '#app/components/forms.tsx'
+import { Field, TextareaField, ErrorList } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon'
 import { Label } from '#app/components/ui/label.tsx'
@@ -97,13 +97,13 @@ export function MeetupEditor({
 		? combineAddress(meetup.location.address)
 		: ''
 
-	useEffect(() => {
-		setLocation({
-			id: meetup?.location?.id ?? '',
-			name: meetup?.location?.name ?? '',
-			address: address,
-		})
-	}, [meetup?.location, address])
+	// useEffect(() => {
+	// 	setLocation({
+	// 		id: meetup?.location?.id ?? '',
+	// 		name: meetup?.location?.name ?? '',
+	// 		address: address,
+	// 	})
+	// }, [meetup?.location, address])
 
 	return (
 		<div className="relative min-h-[600px] rounded-2xl bg-white p-6 shadow-sm">
@@ -123,14 +123,21 @@ export function MeetupEditor({
 					<button type="submit" className="hidden" />
 
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
-					<div className="space-y-2">
+					{location.id ? (
+						<input
+							type="hidden"
+							name="locationId"
+							value={location.id}
+							className="h-10 w-full"
+						/>
+					) : null}
+					<div className="">
 						<Field
 							labelProps={{ children: 'Title' }}
 							inputProps={{
 								...getInputProps(fields.title, { type: 'text' }),
 								placeholder: 'Enter meetup title',
-								className:
-									'border-primary/20 focus:border-primary focus:ring-primary',
+								className: 'mt-1',
 							}}
 							errors={fields.title.errors}
 						/>
@@ -139,8 +146,7 @@ export function MeetupEditor({
 							textareaProps={{
 								...getInputProps(fields.description, { type: 'text' }),
 								placeholder: 'Write a short description of your meetup...',
-								className:
-									'min-h-[100px] border-primary/20 focus:border-primary focus:ring-primary',
+								className: 'mt-1',
 							}}
 							errors={fields.description.errors}
 						/>
@@ -153,13 +159,15 @@ export function MeetupEditor({
 							variant="outline"
 							role="button"
 							aria-expanded={openLocation}
-							className="w-full justify-between"
+							className={`mt-1 w-full justify-between ${
+								fields.locationId.errors?.length ? 'border-destructive' : ''
+							}`}
 							onClick={(e) => {
 								e.preventDefault()
 								setOpenLocation(true)
 							}}
 						>
-							{locationNotEmpty ? (
+							{location.id ? (
 								<span className="flex items-center">
 									{/* <Icon name="map-pin" className="mr-2 h-4 w-4 text-primary" /> */}
 									<img
@@ -187,17 +195,9 @@ export function MeetupEditor({
 							/>
 						</Button>
 						{/* Update to get locationId from setLocation */}
-						{location.name ? (
-							<input type="hidden" name="locationId" value={location.id} />
-						) : null}
-
-						{fields.locationId.errors?.length
-							? fields.locationId.errors.map((err, i) => (
-									<p key={i} className="mt-1 text-sm text-red-500">
-										{err}
-									</p>
-								))
-							: null}
+						<div className="min-h-[24px] px-4 pb-0 pt-1">
+							<ErrorList errors={fields.locationId.errors} />
+						</div>
 
 						<CommandPreview
 							locations={data.locations}
@@ -209,22 +209,29 @@ export function MeetupEditor({
 						/>
 
 						{location.id && (
-							<DateTimePicker
-								// locationId={location.id}
-								hoursOfOperation={
-									data?.locations?.find(
-										(location) => location.id === location.id,
-									)?.hoursOfOperation ?? []
-								}
-								date={date}
-								setDate={setDate}
-								// errors={fields.startTime.errors}
-							/>
+							<>
+								<Label>Time</Label>
+								<DateTimePicker
+									// locationId={location.id}
+									hoursOfOperation={
+										data?.locations?.find(
+											(location) => location.id === location.id,
+										)?.hoursOfOperation ?? []
+									}
+									date={date}
+									setDate={setDate}
+									// errors={fields.startTime.errors}
+								/>
+							</>
 						)}
 					</div>
 				</Form>
 				<div className={floatingToolbarClassName}>
-					<Button variant="destructive" {...form.reset.getButtonProps()}>
+					<Button
+						variant="destructive"
+						{...form.reset.getButtonProps()}
+						onClick={() => setLocation({ id: '', name: '', address: '' })}
+					>
 						Reset
 					</Button>
 					<StatusButton
