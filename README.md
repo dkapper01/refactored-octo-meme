@@ -22,5 +22,3 @@ Built with Remix, Prisma, and TypeScript.
   - Custom components with shadcn/ui styling
 - **Authentication**: Built-in auth with password hashing
 - **Form Handling**: Conform + Zod validation
-
-## Getting Started
