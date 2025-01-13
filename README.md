@@ -14,6 +14,7 @@ Built with Remix, Prisma, and TypeScript.
 ## Tech Stack
 
 - **Framework**: [Remix](https://remix.run)
+- **Language**: TypeScript
 - **Database**: SQLite with [Prisma](https://prisma.io) ORM
 - **Styling**: Tailwind CSS
 - **UI Components**:
@@ -22,3 +23,5 @@ Built with Remix, Prisma, and TypeScript.
   - Custom components with shadcn/ui styling
 - **Authentication**: Built-in auth with password hashing
 - **Form Handling**: Conform + Zod validation
+- **Testing**: Playwright, Vitest, and Testing Library
+- **CI/CD**: GitHub Actions
