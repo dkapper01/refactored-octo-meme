@@ -10,6 +10,7 @@ import {
 import { useState } from 'react'
 import { Button } from '#app/components/ui/button.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
+import { combineAddress } from '#app/utils/combine-address.ts'
 import { cn } from '#app/utils/misc.tsx'
 
 interface Location {
@@ -21,15 +22,6 @@ interface Location {
 		state: string
 		zip: string
 	} | null
-}
-
-const combineAddress = (address: {
-	street: string
-	city: string
-	state: string
-	zip: string
-}) => {
-	return `${address.street}, ${address.city}, ${address.state} ${address.zip}`
 }
 
 export default function CommandPreview({
@@ -73,7 +65,7 @@ export default function CommandPreview({
 					transition
 					className="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition-all data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 				>
-					<Combobox<Location> onChange={() => {}}>
+					<Combobox<Location> onChange={() => {}} value={locations[0]}>
 						{({ activeOption }) => (
 							<div>
 								<div className="grid grid-cols-1">
@@ -124,11 +116,13 @@ export default function CommandPreview({
 																value={location}
 																className="group flex cursor-default select-none items-center rounded-md p-2 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
 															>
-																{/* <img
-																	src={location.imageUrl}
+																<img
+																	src={
+																		'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+																	}
 																	alt=""
 																	className="size-6 flex-none rounded-full"
-																/> */}
+																/>
 																<span className="ml-3 flex-auto truncate">
 																	{location.name}
 																</span>
@@ -145,13 +139,15 @@ export default function CommandPreview({
 										</div>
 
 										{activeOption && (
-											<div className="hidden h-96 w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
-												<div className="flex-none bg-red-500 text-center">
-													{/* <img
-														src={activeOption.imageUrl}
+											<div className="hidden h-96 w-1/2 flex-none flex-col overflow-y-auto sm:flex">
+												<div className="flex-none px-4 text-center">
+													<img
+														src={
+															'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+														}
 														alt=""
-														className="mx-auto object-cover"
-													/> */}
+														className="mx-auto h-32 w-full rounded-xl object-cover"
+													/>
 												</div>
 												<div className="flex flex-auto flex-col justify-between p-6">
 													<dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm text-gray-700">
