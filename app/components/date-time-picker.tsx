@@ -1,7 +1,8 @@
+import { type HoursOfOperation } from '@prisma/client'
 import {
 	format,
 	addMinutes,
-	startOfDay,
+	// startOfDay,
 	isBefore,
 	isToday,
 	startOfToday,
@@ -23,29 +24,36 @@ import { cn } from '#app/utils/misc.tsx'
 interface DateTimePickerProps {
 	date: Date | undefined
 	setDate: (date: Date | undefined) => void
+	hoursOfOperation?: HoursOfOperation[]
 }
 
-export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
+export default function DateTimePicker({
+	date,
+	setDate,
+	hoursOfOperation = [],
+}: DateTimePickerProps) {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(date)
 	const [selectedTime, setSelectedTime] = useState<string>(
 		date ? format(date, 'HH:mm') : '',
 	)
+
 	const [open, setOpen] = useState(false)
 
 	const generateTimeOptions = (selectedDate: Date | undefined) => {
-		const options = []
-		const now = new Date()
-		const startTime =
-			selectedDate && isToday(selectedDate)
-				? now
-				: startOfDay(selectedDate || now)
-		const endTime = addMinutes(startOfDay(selectedDate || now), 24 * 60 - 30)
+		if (!selectedDate || !hoursOfOperation) return []
 
-		let currentTime = startOfDay(startTime)
+		const dayOfWeek = format(selectedDate, 'EEEE').toUpperCase()
+		const todayHours = hoursOfOperation.find((h) => h.dayOfWeek === dayOfWeek)
+
+		if (!todayHours) return []
+
+		const options = []
+		const startTime = parse(todayHours.openTime, 'HH:mm', selectedDate)
+		const endTime = parse(todayHours.closeTime, 'HH:mm', selectedDate)
+
+		let currentTime = startTime
 		while (isBefore(currentTime, endTime)) {
-			if (!isBefore(currentTime, startTime)) {
-				options.push(format(currentTime, 'HH:mm'))
-			}
+			options.push(format(currentTime, 'HH:mm'))
 			currentTime = addMinutes(currentTime, 30)
 		}
 		return options
@@ -124,6 +132,13 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 								</div>
 								<ScrollArea className="h-[280px] pr-4">
 									<div className="grid grid-cols-3 gap-2">
+										{!date && (
+											<div className="flex h-full w-24 items-center justify-center">
+												<span className="text-muted-foreground">
+													Please select a date
+												</span>
+											</div>
+										)}
 										{timeOptions.map((time) => {
 											const isDisabled =
 												selectedDate &&
