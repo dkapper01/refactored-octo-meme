@@ -3,8 +3,8 @@
 
 export default function MeetupsIndexRoute() {
 	return (
-		<div className="container pt-12">
-			<p className="text-body-md">Select a Meetup</p>
+		<div className="flex h-full items-center justify-center rounded-2xl bg-white shadow-sm">
+			<p className="text-gray-500">Select a meetup to view details</p>
 		</div>
 	)
 }
