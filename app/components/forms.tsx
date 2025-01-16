@@ -57,7 +57,7 @@ export function Field({
 				aria-describedby={errorId}
 				{...inputProps}
 			/>
-			<div className="min-h-[32px] px-4 pb-3 pt-1">
+			<div className="min-h-[24px] px-4 pb-0 pt-1">
 				{errorId ? <ErrorList id={errorId} errors={errors} /> : null}
 			</div>
 		</div>
@@ -101,7 +101,7 @@ export function OTPField({
 					<InputOTPSlot index={5} />
 				</InputOTPGroup>
 			</InputOTP>
-			<div className="min-h-[32px] px-4 pb-3 pt-1">
+			<div className="min-h-[24px] px-4 pb-0 pt-1">
 				{errorId ? <ErrorList id={errorId} errors={errors} /> : null}
 			</div>
 		</div>
@@ -131,7 +131,7 @@ export function TextareaField({
 				aria-describedby={errorId}
 				{...textareaProps}
 			/>
-			<div className="min-h-[32px] px-4 pb-3 pt-1">
+			<div className="min-h-[24px] px-4 pb-0 pt-1">
 				{errorId ? <ErrorList id={errorId} errors={errors} /> : null}
 			</div>
 		</div>

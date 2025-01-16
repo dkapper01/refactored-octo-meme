@@ -57,7 +57,7 @@ export default function CommandPreview({
 		>
 			<DialogBackdrop
 				transition
-				className="fixed inset-0 bg-gray-500/25 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
+				className="fixed inset-0 bg-black/80 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 			/>
 
 			<div className="fixed inset-0 z-10 w-screen overflow-y-auto p-4 sm:p-6 md:p-20">
@@ -65,7 +65,7 @@ export default function CommandPreview({
 					transition
 					className="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition-all data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 				>
-					<Combobox<Location> onChange={() => {}} value={locations[0]}>
+					<Combobox<Location> onChange={() => {}}>
 						{({ activeOption }) => (
 							<div>
 								<div className="grid grid-cols-1">

@@ -13,7 +13,7 @@ import {
 	useLoaderData,
 	// type MetaFunction,
 } from '@remix-run/react'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format } from 'date-fns'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
@@ -42,6 +42,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			ownerId: true,
 			description: true,
 			updatedAt: true,
+			startTime: true,
 			location: true,
 		},
 	})
@@ -129,7 +130,10 @@ export default function MeetupRoute() {
 						</h2>
 						<div className="flex items-center text-sm text-white/90">
 							<Icon name="calendar" className="mr-2 h-4 w-4" />
-							<span>Date here</span>
+							<span>
+								{format(new Date(data.meetup.startTime), 'MMMM d, yyyy')} at{' '}
+								{format(new Date(data.meetup.startTime), 'h:mm a')}
+							</span>
 						</div>
 					</div>
 				</div>

@@ -10,12 +10,19 @@ export { action } from './__meetup-editor.server.tsx'
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
 	const userId = await requireUserId(request)
-	// const topics = await prisma.topic.findMany()
+	const locations = await prisma.location.findMany({
+		select: {
+			id: true,
+			name: true,
+			address: true,
+		},
+	})
 	const meetup = await prisma.meetup.findFirst({
 		select: {
 			id: true,
 			title: true,
 			description: true,
+			startTime: true,
 			location: {
 				select: {
 					id: true,
@@ -23,7 +30,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 					address: true,
 				},
 			},
-			// topics: true,
 		},
 		where: {
 			id: params.meetupId,
@@ -31,7 +37,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 		},
 	})
 	invariantResponse(meetup, 'Not found', { status: 404 })
-	return json({ meetup })
+	return json({ meetup, locations })
 }
 
 export default function MeetupEdit() {
