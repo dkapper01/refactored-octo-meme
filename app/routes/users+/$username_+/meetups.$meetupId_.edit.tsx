@@ -22,6 +22,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 			id: true,
 			title: true,
 			description: true,
+			startTime: true,
 			location: {
 				select: {
 					id: true,
@@ -29,7 +30,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 					address: true,
 				},
 			},
-			// topics: true,
 		},
 		where: {
 			id: params.meetupId,
@@ -42,7 +42,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export default function MeetupEdit() {
 	const data = useLoaderData<typeof loader>()
-	console.log({ data })
 
 	return <MeetupEditor meetup={data.meetup} />
 }
