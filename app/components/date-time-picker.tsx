@@ -225,15 +225,6 @@ export default function DateTimePicker({
 
 	const summary = formatSummary(date, time)
 
-	console.log('confirmedDate && confirmedTime', {
-		date,
-		time,
-		confirmedDate,
-		// confirmedTime,
-		// formatSummary: formatSummary(confirmedDate, confirmedTime),
-		timeListRef,
-	})
-
 	return (
 		<div className="flex items-center">
 			<Dialog onOpenChange={handleOpenChange}>
@@ -260,7 +251,7 @@ export default function DateTimePicker({
 							Choose a date and time
 						</DialogTitle>
 					</DialogHeader>
-					<div className="flex flex-col gap-6 p-6 sm:flex-row">
+					<div className="flex flex-col gap-6 px-6 pt-4 sm:flex-row">
 						<div className="flex-1">
 							<Calendar
 								mode="single"
@@ -320,13 +311,34 @@ export default function DateTimePicker({
 							</ScrollArea>
 						</div>
 					</div>
+
 					<div className="p-6 pt-0">
-						<div className="mb-4 min-h-[80px] rounded-2xl bg-gray-50 p-4">
+						{summary?.busyLevel === 'Busy' && (
+							<Alert variant="warning" className="mb-3">
+								<Icon name="exclamation-triangle" className="h-4 w-4" />
+								<AlertDescription>
+									This is a busy time. We recommend arriving 30 minutes early to
+									secure a table.
+								</AlertDescription>
+							</Alert>
+						)}
+						{summary?.busyLevel === 'Moderate' && (
+							<Alert variant="warning" className="mb-3">
+								<Icon name="exclamation-circle" className="h-4 w-4" />
+								<AlertDescription>
+									This is a moderately busy time. We suggest arriving 15 minutes
+									early to find a table.
+								</AlertDescription>
+							</Alert>
+						)}
+						{/* {summary && summary.busyLevel === 'Busy' && ( */}
+
+						{/* <div className="mb-4 min-h-[80px] rounded-2xl bg-gray-50 p-4">
 							{summary ? (
 								<div className="space-y-2">
-									{/* <h3 className="text-md flex items-center font-semibold">
+									<h3 className="text-md flex items-center font-semibold">
 										Selected Meetup
-									</h3> */}
+									</h3>
 									<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 										<div className="flex items-center">
 											<Icon
@@ -384,7 +396,7 @@ export default function DateTimePicker({
 									Please select a date and time for your 30-minute meetup.
 								</p>
 							)}
-						</div>
+						</div> */}
 						<div className="flex justify-end">
 							<DialogClose asChild>
 								<Button
