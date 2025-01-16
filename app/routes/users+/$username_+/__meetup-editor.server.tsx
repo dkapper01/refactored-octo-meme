@@ -55,6 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		id: meetupId,
 		title,
 		description,
+		startTime,
 		// topics
 	} = submission.value
 
@@ -83,13 +84,13 @@ export async function action({ request }: ActionFunctionArgs) {
 			title,
 			description,
 			locationId: formData.get('locationId') as string,
-			startTime: new Date(),
+			startTime,
 		},
 		update: {
 			title,
 			description,
 			locationId: formData.get('locationId') as string,
-			startTime: new Date(),
+			startTime,
 		},
 		select: {
 			id: true,
