@@ -40,16 +40,16 @@ export const MeetupEditorSchema = z.object({
 	locationId: z.string().min(1, {
 		message: 'Please select a location.',
 	}),
-	// startTime: z.string().min(1, {
-	// 	message: 'Please select a start time.',
-	// }),
+	startTime: z.string().min(1, {
+		message: 'Please select a start time.',
+	}),
 })
 
 export function MeetupEditor({
 	meetup,
 }: {
 	meetup?: SerializeFrom<
-		Pick<Meetup, 'id' | 'title' | 'description'> & {
+		Pick<Meetup, 'id' | 'title' | 'description' | 'startTime'> & {
 			location: {
 				id: string
 				name: string
@@ -63,14 +63,15 @@ export function MeetupEditor({
 		}
 	>
 }) {
-	const data = useLoaderData<typeof loader>()
+	const actionData = useLoaderData<typeof loader>()
+	// console.log({ meetup })
 
 	const isPending = useIsPending()
 
 	const [form, fields] = useForm({
 		id: 'meetup-form',
 		constraint: getZodConstraint(MeetupEditorSchema),
-		// lastResult: actionData?.result,
+		// lastResult: actionData,
 		// shouldValidate: 'onBlur',
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
@@ -81,10 +82,13 @@ export function MeetupEditor({
 			id: meetup?.id,
 			title: meetup?.title ?? '',
 			description: meetup?.description ?? '',
+			startTime: meetup?.startTime ?? '',
 			locationId: meetup?.location?.id ?? '',
 		},
 	})
-	const [date, setDate] = useState<Date | undefined>(undefined)
+	const [date, setDate] = useState<Date>(
+		meetup?.startTime ? new Date(meetup.startTime) : new Date(),
+	)
 	const [openLocation, setOpenLocation] = useState(false)
 	const [location, setLocation] = useState<{
 		id?: string
@@ -131,6 +135,9 @@ export function MeetupEditor({
 							value={location.id}
 							className="h-10 w-full"
 						/>
+					) : null}
+					{date ? (
+						<input type="hidden" name="startTime" value={date.toISOString()} />
 					) : null}
 					<div className="">
 						<Field
@@ -197,7 +204,7 @@ export function MeetupEditor({
 						</div>
 
 						<CommandPreview
-							locations={data.locations}
+							locations={actionData.locations}
 							open={openLocation}
 							setOpen={setOpenLocation}
 							setLocation={({ id, name, address }) =>
@@ -209,16 +216,25 @@ export function MeetupEditor({
 							<>
 								<Label>Time</Label>
 								<DateTimePicker
-									// locationId={location.id}
-									hoursOfOperation={
-										data?.locations?.find(
-											(location) => location.id === location.id,
-										)?.hoursOfOperation ?? []
-									}
+									// locationId={loc    ation.id}
+									// hoursOfOperation={
+									// 	data?.locations?.find(
+									// 		(location) => location.id === location.id,
+									// 	)?.hoursOfOperation ?? []
+									// }
 									date={date}
 									setDate={setDate}
 									// errors={fields.startTime.errors}
 								/>
+								{/* <input
+									type="hidden"
+									name="startTime"
+									value={date.toISOString()}
+								/> */}
+
+								<div className="min-h-[24px] px-4 pb-0 pt-1">
+									<ErrorList errors={fields.startTime.errors} />
+								</div>
 							</>
 						)}
 					</div>
