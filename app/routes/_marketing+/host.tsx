@@ -17,7 +17,7 @@ export default function HostRoute() {
 		address: '',
 	})
 	const [isCommandOpen, setIsCommandOpen] = useState(false)
-	const [date, setDate] = useState<Date | undefined>(undefined)
+	// const [date, setDate] = useState<Date | undefined>(undefined)
 
 	return (
 		<div className="container mx-auto mt-10 max-w-2xl p-4">
@@ -89,7 +89,7 @@ export default function HostRoute() {
 					>
 						Start Time
 					</Label>
-					<DateTimePicker date={date} setDate={setDate} />
+					{/* <DateTimePicker date={date} setDate={setDate} /> */}
 				</div>
 
 				<div className="space-y-2">
