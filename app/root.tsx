@@ -216,24 +216,9 @@ function App() {
 	return (
 		<>
 			<div className="flex h-screen flex-col justify-between bg-gray-50">
-				<header className="border-b bg-white py-3 shadow-sm">
+				<header className="fixed left-0 right-0 top-0 z-50 bg-white py-3">
 					<nav className="container flex flex-wrap items-center justify-between">
 						<Logo />
-						{/* <div className="ml-auto hidden items-center gap-1 sm:flex">
-							<Button asChild variant="ghost">
-								<Link to={`/host`}>
-									<Icon name="map-pin" size="lg" />
-									Host 1
-								</Link>
-							</Button>
-							<Button asChild variant="ghost">
-								<Link to={`/meetups`}>
-									<Icon name="users" size="lg" />
-									Find Meetup 1
-								</Link>
-							</Button>
-							{searchBar}
-						</div> */}
 						<div className="ml-auto mr-5">
 							<Button asChild>
 								<Link to={`/users/${user?.username}/meetups/new`}>
@@ -251,24 +236,10 @@ function App() {
 								</Button>
 							)}
 						</div>
-						<div className="block w-full text-center sm:hidden">
-							{/* <Button asChild variant="ghost">
-								<Link to={`/host`}>
-									<Icon name="map-pin" size="lg" />
-									Host 2
-								</Link>
-							</Button>
-							<Button asChild variant="ghost">
-								<Link to={`/meetups`}>
-									<Icon name="users" size="lg" />
-									Find Meetup 2
-								</Link>
-							</Button> */}
-						</div>
 					</nav>
 				</header>
 
-				<div className="flex-1">
+				<div className="flex-1 pt-20">
 					<Outlet />
 				</div>
 
