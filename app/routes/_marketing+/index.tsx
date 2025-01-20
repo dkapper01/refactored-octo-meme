@@ -22,7 +22,7 @@ export default function Index() {
 
 	return (
 		<div className="relative flex flex-col text-gray-800">
-			<main className="container">
+			<main className="container fixed left-0 right-0 top-0 mt-20">
 				<ExploreEvents />
 			</main>
 		</div>

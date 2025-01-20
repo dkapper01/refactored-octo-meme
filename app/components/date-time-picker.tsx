@@ -9,7 +9,7 @@ import {
 	isAfter,
 } from 'date-fns'
 import { useState, useRef, useEffect } from 'react'
-import { Alert, AlertDescription } from '#app/components/ui/alert.tsx'
+// import { Alert, AlertDescription } from '#app/components/ui/alert.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { Calendar } from '#app/components/ui/calendar.tsx'
 import {
@@ -22,6 +22,7 @@ import {
 } from '#app/components/ui/dialog.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
 import { ScrollArea } from '#app/components/ui/scroll-area.tsx'
+// import { BusyTimesGraph } from '#app/components/busy-times-graph.tsx'
 
 import { cn } from '#app/utils/misc.tsx'
 
@@ -36,16 +37,16 @@ const getBusyLevel = (hour: number): BusyLevel => {
 	return 'Quiet'
 }
 
-const getBusyLevelColor = (level: BusyLevel): string => {
-	switch (level) {
-		case 'Quiet':
-			return 'bg-green-500 text-green-100'
-		case 'Moderate':
-			return 'bg-yellow-500 text-yellow-100'
-		case 'Busy':
-			return 'bg-red-500 text-red-100'
-	}
-}
+// const getBusyLevelColor = (level: BusyLevel): string => {
+// 	switch (level) {
+// 		case 'Quiet':
+// 			return 'bg-green-500 text-green-100'
+// 		case 'Moderate':
+// 			return 'bg-yellow-500 text-yellow-100'
+// 		case 'Busy':
+// 			return 'bg-red-500 text-red-100'
+// 	}
+// }
 
 const isDateDisabled = (date: Date) => {
 	const today = startOfDay(new Date())
@@ -223,7 +224,7 @@ export default function DateTimePicker({
 		return isBefore(selectedDateTime, now)
 	}
 
-	const summary = formatSummary(date, time)
+	// const summary = formatSummary(date, time)
 
 	return (
 		<div className="flex items-center">
@@ -245,7 +246,7 @@ export default function DateTimePicker({
 						)}
 					</Button>
 				</DialogTrigger>
-				<DialogContent className="border-0 bg-background p-0 shadow-lg sm:max-w-[600px]">
+				<DialogContent className="border-0 bg-background p-0 shadow-lg sm:max-w-[500px]">
 					<DialogHeader className="p-6 pb-0">
 						<DialogTitle className="text-2xl font-bold text-primary">
 							Choose a date and time
@@ -265,7 +266,7 @@ export default function DateTimePicker({
 						</div>
 						<div className="flex flex-1 flex-col">
 							<ScrollArea
-								className="h-[300px] w-[220px] rounded-lg"
+								className="h-[300px] w-[100px] rounded-lg"
 								ref={timeListRef}
 							>
 								<div className="flex flex-col gap-2 p-2">
@@ -276,7 +277,7 @@ export default function DateTimePicker({
 										const displayHour =
 											hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
 										const timeString = `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`
-										const busyLevel = getBusyLevel(hour)
+										// const busyLevel = getBusyLevel(hour)
 										const isPast = isTimeInPast(timeString)
 										return (
 											<Button
@@ -296,14 +297,14 @@ export default function DateTimePicker({
 												<span className="text-sm font-medium">
 													{timeString}
 												</span>
-												<span
+												{/* <span
 													className={cn(
 														'rounded-full px-2 py-0.5 text-xs',
 														getBusyLevelColor(busyLevel),
 													)}
 												>
 													{busyLevel}
-												</span>
+												</span> */}
 											</Button>
 										)
 									})}
@@ -311,9 +312,12 @@ export default function DateTimePicker({
 							</ScrollArea>
 						</div>
 					</div>
+					{/* <div className="mx-6 rounded-lg bg-gray-50 p-6 pt-0">
+						<BusyTimesGraph />
+					</div> */}
 
-					<div className="p-6 pt-0">
-						{summary?.busyLevel === 'Busy' && (
+					{/* <div className="p-6 pt-0"> */}
+					{/* {summary?.busyLevel === 'Busy' && (
 							<Alert variant="warning" className="mb-3">
 								<Icon name="exclamation-triangle" className="h-4 w-4" />
 								<AlertDescription>
@@ -330,10 +334,10 @@ export default function DateTimePicker({
 									early to find a table.
 								</AlertDescription>
 							</Alert>
-						)}
-						{/* {summary && summary.busyLevel === 'Busy' && ( */}
+						)} */}
+					{/* {summary && summary.busyLevel === 'Busy' && ( */}
 
-						{/* <div className="mb-4 min-h-[80px] rounded-2xl bg-gray-50 p-4">
+					{/* <div className="mb-4 min-h-[80px] rounded-2xl bg-gray-50 p-4">
 							{summary ? (
 								<div className="space-y-2">
 									<h3 className="text-md flex items-center font-semibold">
@@ -397,17 +401,17 @@ export default function DateTimePicker({
 								</p>
 							)}
 						</div> */}
-						<div className="flex justify-end">
-							<DialogClose asChild>
-								<Button
-									onClick={handleConfirm}
-									disabled={!date || !time}
-									className="w-full"
-								>
-									Select
-								</Button>
-							</DialogClose>
-						</div>
+					<div className="flex justify-end p-6 pt-0">
+						<DialogClose asChild>
+							<Button
+								onClick={handleConfirm}
+								disabled={!date || !time}
+								className="w-full"
+							>
+								Select
+							</Button>
+						</DialogClose>
+						{/* </div> */}
 					</div>
 				</DialogContent>
 			</Dialog>

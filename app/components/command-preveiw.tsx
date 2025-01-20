@@ -24,6 +24,9 @@ interface Location {
 	} | null
 }
 
+const PLACEHOLDER_IMAGE =
+	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNODAgOTBIMTIwVjExMEg4MFY5MFoiIGZpbGw9IiM5Q0EzQUYiLz48cGF0aCBkPSJNNjUgNzBIMTM1VjEzMEg2NVY3MFoiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+'
+
 export default function CommandPreview({
 	open,
 	setOpen,
@@ -117,11 +120,9 @@ export default function CommandPreview({
 																className="group flex cursor-default select-none items-center rounded-md p-2 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
 															>
 																<img
-																	src={
-																		'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-																	}
-																	alt=""
-																	className="size-6 flex-none rounded-full"
+																	src={PLACEHOLDER_IMAGE}
+																	alt={`${location.name} coffee shop`}
+																	className="h-12 w-12 rounded-md object-cover"
 																/>
 																<span className="ml-3 flex-auto truncate">
 																	{location.name}
@@ -142,10 +143,8 @@ export default function CommandPreview({
 											<div className="hidden h-96 w-1/2 flex-none flex-col overflow-y-auto sm:flex">
 												<div className="flex-none px-4 text-center">
 													<img
-														src={
-															'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-														}
-														alt=""
+														src={PLACEHOLDER_IMAGE}
+														alt={`${activeOption.name} coffee shop`}
 														className="mx-auto h-32 w-full rounded-xl object-cover"
 													/>
 												</div>
