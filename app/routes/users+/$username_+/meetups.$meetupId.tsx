@@ -111,17 +111,14 @@ export default function MeetupRoute() {
 
 	return (
 		<div className="relative flex flex-col">
-			<div className="min-h-[500px] overflow-hidden rounded-2xl bg-white shadow-sm">
+			<div className="min-h-[500px] overflow-hidden rounded-lg bg-white shadow-md">
 				<div className="relative h-48">
 					<img
-						// src={selectedMeetup.imageUrl}
 						src={
 							'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 						}
 						// alt={selectedMeetup.location}
 						className="h-48 w-full object-cover"
-						// layout="fill"
-						// objectFit="cover"
 					/>
 					<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 					<div className="absolute bottom-0 left-0 p-6">
@@ -155,7 +152,6 @@ export default function MeetupRoute() {
 					</span>
 					<div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">
 						{canDelete ? <DeleteMeetup id={data.meetup.id} /> : null}
-						{/* <DeleteNote id={data.meetup.id} /> */}
 						<Button
 							asChild
 							className="min-[525px]:max-md:aspect-square min-[525px]:max-md:px-0"

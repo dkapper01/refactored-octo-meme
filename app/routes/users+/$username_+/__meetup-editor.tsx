@@ -16,18 +16,22 @@ import {
 import { useState, useEffect } from 'react'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-import CommandPreview from '#app/components/command-preveiw.tsx'
+// import CommandPreview from '#app/components/command-preveiw.tsx'
 import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Field, TextareaField, ErrorList } from '#app/components/forms.tsx'
+import CoffeeShopsCommand from '#app/components/location-command.tsx'
 import { Button } from '#app/components/ui/button.tsx'
-import { Icon } from '#app/components/ui/icon'
+// import { Icon } from '#app/components/ui/icon'
 import { Label } from '#app/components/ui/label.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
 import { combineAddress } from '#app/utils/combine-address.ts'
 import { useIsPending } from '#app/utils/misc.tsx'
 
 import { type loader } from './__meetup-editor.server'
+
+// const PLACEHOLDER_IMAGE =
+// 	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNODAgOTBIMTIwVjExMEg4MFY5MFoiIGZpbGw9IiM5Q0EzQUYiLz48cGF0aCBkPSJNNjUgNzBIMTM1VjEzMEg2NVY3MFoiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+'
 
 export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
@@ -64,7 +68,7 @@ export function MeetupEditor({
 	>
 }) {
 	const actionData = useLoaderData<typeof loader>()
-	// console.log({ meetup })
+	console.log({ actionData })
 
 	const isPending = useIsPending()
 
@@ -89,12 +93,8 @@ export function MeetupEditor({
 	const [date, setDate] = useState<Date>(
 		meetup?.startTime ? new Date(meetup.startTime) : new Date(),
 	)
-	const [openLocation, setOpenLocation] = useState(false)
-	const [location, setLocation] = useState<{
-		id?: string
-		name: string
-		address: string
-	}>({ id: '', name: '', address: '' })
+	// const [openLocation, setOpenLocation] = useState(false)
+	const [locationId, setLocationId] = useState('')
 
 	const address = meetup?.location?.address
 		? combineAddress(meetup.location.address)
@@ -102,17 +102,19 @@ export function MeetupEditor({
 
 	useEffect(() => {
 		if (meetup?.location) {
-			setLocation({
-				id: meetup?.location?.id ?? '',
-				name: meetup?.location?.name ?? '',
-				address: address,
-			})
+			setLocationId(meetup?.location?.id)
 		}
 	}, [meetup?.location, address])
 
+	// console.log({ setLocationId })
+
 	return (
-		<div className="relative min-h-[600px] rounded-2xl bg-white p-6 shadow-sm">
+		<div className="relative min-h-[700px] rounded-lg bg-white p-6 shadow-md">
 			<h1 className="text-2xl font-bold">Create a Meetup</h1>
+			<p className="text-sm text-muted-foreground">
+				Each meetup lasts for one hour, and the maximum number of attendees is
+				six.
+			</p>
 			<FormProvider context={form.context}>
 				<Form
 					method="post"
@@ -128,11 +130,11 @@ export function MeetupEditor({
 					<button type="submit" className="hidden" />
 
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
-					{location.id ? (
+					{locationId ? (
 						<input
 							type="hidden"
 							name="locationId"
-							value={location.id}
+							value={locationId}
 							className="h-10 w-full"
 						/>
 					) : null}
@@ -159,7 +161,11 @@ export function MeetupEditor({
 							errors={fields.description.errors}
 						/>
 						<Label>Location</Label>
-						<Button
+						<CoffeeShopsCommand
+							locations={actionData.locations}
+							setLocationId={setLocationId}
+						/>
+						{/* <Button
 							type="button"
 							variant="outline"
 							role="button"
@@ -175,9 +181,7 @@ export function MeetupEditor({
 							{location.id ? (
 								<span className="flex items-center">
 									<img
-										src={
-											'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-										}
+										src={PLACEHOLDER_IMAGE}
 										className="mr-2 h-6 w-6 rounded-full"
 									/>
 									<div className="text-left">
@@ -197,53 +201,56 @@ export function MeetupEditor({
 								name="chevron-down"
 								className="ml-2 h-4 w-4 shrink-0 opacity-50"
 							/>
-						</Button>
+						</Button> */}
 						{/* Update to get locationId from setLocation */}
 						<div className="min-h-[24px] px-4 pb-0 pt-1">
 							<ErrorList errors={fields.locationId.errors} />
 						</div>
 
-						<CommandPreview
+						{/* <CommandPreview
 							locations={actionData.locations}
 							open={openLocation}
 							setOpen={setOpenLocation}
 							setLocation={({ id, name, address }) =>
 								setLocation({ id, name, address })
 							}
-						/>
+						/> */}
 
-						{location.id && (
-							<>
-								<Label>Time</Label>
-								<DateTimePicker
-									// locationId={loc    ation.id}
-									// hoursOfOperation={
-									// 	data?.locations?.find(
-									// 		(location) => location.id === location.id,
-									// 	)?.hoursOfOperation ?? []
-									// }
-									date={date}
-									setDate={setDate}
-									// errors={fields.startTime.errors}
-								/>
-								{/* <input
+						{/* {location.id && ( */}
+						<>
+							<Label>Time</Label>
+							<DateTimePicker
+								// locationId={loc    ation.id}
+								// hoursOfOperation={
+								// 	data?.locations?.find(
+								// 		(location) => location.id === location.id,
+								// 	)?.hoursOfOperation ?? []
+								// }
+								date={date}
+								setDate={setDate}
+								// errors={fields.startTime.errors}
+							/>
+							{/* <input
 									type="hidden"
 									name="startTime"
 									value={date.toISOString()}
 								/> */}
 
-								<div className="min-h-[24px] px-4 pb-0 pt-1">
-									<ErrorList errors={fields.startTime.errors} />
-								</div>
-							</>
-						)}
+							<div className="min-h-[24px] px-4 pb-0 pt-1">
+								<ErrorList errors={fields.startTime.errors} />
+							</div>
+						</>
+						{/* )} */}
 					</div>
 				</Form>
 				<div className={floatingToolbarClassName}>
 					<Button
 						variant="destructive"
 						{...form.reset.getButtonProps()}
-						onClick={() => setLocation({ id: '', name: '', address: '' })}
+						onClick={() => {
+							setLocationId('')
+							setDate(new Date())
+						}}
 					>
 						Reset
 					</Button>
