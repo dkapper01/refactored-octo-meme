@@ -37,16 +37,16 @@ const getBusyLevel = (hour: number): BusyLevel => {
 	return 'Quiet'
 }
 
-const getBusyLevelColor = (level: BusyLevel): string => {
-	switch (level) {
-		case 'Quiet':
-			return 'bg-green-500 text-green-100'
-		case 'Moderate':
-			return 'bg-yellow-500 text-yellow-100'
-		case 'Busy':
-			return 'bg-red-500 text-red-100'
-	}
-}
+// const getBusyLevelColor = (level: BusyLevel): string => {
+// 	switch (level) {
+// 		case 'Quiet':
+// 			return 'bg-green-500 text-green-100'
+// 		case 'Moderate':
+// 			return 'bg-yellow-500 text-yellow-100'
+// 		case 'Busy':
+// 			return 'bg-red-500 text-red-100'
+// 	}
+// }
 
 const isDateDisabled = (date: Date) => {
 	const today = startOfDay(new Date())
@@ -224,7 +224,7 @@ export default function DateTimePicker({
 		return isBefore(selectedDateTime, now)
 	}
 
-	const summary = formatSummary(date, time)
+	// const summary = formatSummary(date, time)
 
 	return (
 		<div className="flex items-center">
@@ -277,7 +277,7 @@ export default function DateTimePicker({
 										const displayHour =
 											hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
 										const timeString = `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`
-										const busyLevel = getBusyLevel(hour)
+										// const busyLevel = getBusyLevel(hour)
 										const isPast = isTimeInPast(timeString)
 										return (
 											<Button
