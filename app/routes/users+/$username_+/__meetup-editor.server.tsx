@@ -56,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		title,
 		description,
 		startTime,
-		// topics
+		locationId,
 	} = submission.value
 
 	// Fetch the current meetup to get existing topics
@@ -83,13 +83,13 @@ export async function action({ request }: ActionFunctionArgs) {
 			ownerId: userId,
 			title,
 			description,
-			locationId: formData.get('locationId') as string,
+			locationId,
 			startTime,
 		},
 		update: {
 			title,
 			description,
-			locationId: formData.get('locationId') as string,
+			locationId,
 			startTime,
 		},
 		select: {
