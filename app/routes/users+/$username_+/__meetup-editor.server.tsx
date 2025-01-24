@@ -23,15 +23,15 @@ export async function loader({}: LoaderFunctionArgs) {
 					zip: true,
 				},
 			},
-			hoursOfOperation: {
-				select: {
-					id: true,
-					dayOfWeek: true,
-					openTime: true,
-					closeTime: true,
-					locationId: true,
-				},
-			},
+			// hoursOfOperation: {
+			// 	select: {
+			// 		id: true,
+			// 		dayOfWeek: true,
+			// 		openTime: true,
+			// 		closeTime: true,
+			// 		locationId: true,
+			// 	},
+			// },
 		},
 	})
 
