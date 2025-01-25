@@ -47,7 +47,12 @@ export function MeetupEditor({
 }: {
 	meetup?: SerializeFrom<
 		Pick<Meetup, 'id' | 'title' | 'description' | 'startTime'> & {
-			location: Pick<Location & { address: Address }, 'id' | 'name' | 'address'>
+			location: Pick<
+				Location & {
+					address: Pick<Address, 'street' | 'city' | 'state' | 'zip'>
+				},
+				'id' | 'name' | 'address'
+			>
 		}
 	>
 }) {
