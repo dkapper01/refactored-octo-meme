@@ -226,73 +226,62 @@ async function seed() {
 	try {
 		const locationsData = [
 			{
-				name: 'Capital One Café - Assembly Row',
-				address: {
-					create: {
-						street: '425 Revolution Dr',
-						city: 'Somerville',
-						state: 'MA',
-						zip: '02145',
-						country: 'USA',
-					},
-				},
-				hoursOfOperation: {
-					create: [
-						{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '17:00' },
-						{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '17:00' },
-						{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '17:00' },
-					],
-				},
+				name: 'Capital One Café',
+				// address: {
+				// 	create: {
+				street: '425 Revolution Dr',
+				city: 'Somerville',
+				state: 'MA',
+				zip: '02145',
+				country: 'USA',
+				// 	},
+				// },
 			},
 			{
-				name: 'Capital One Café - Back Bay',
-				address: {
-					create: {
-						street: '711 Boylston Street',
-						city: 'Boston',
-						state: 'MA',
-						zip: '02116',
-						country: 'USA',
-					},
-				},
-				hoursOfOperation: {
-					create: [
-						{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
-						{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '17:00' },
-						{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '17:00' },
-						{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '17:00' },
-					],
-				},
+				name: 'Capital One Café',
+				// address: {
+				// 	create: {
+				street: '711 Boylston Street',
+				city: 'Boston',
+				state: 'MA',
+				zip: '02116',
+				country: 'USA',
+				// 	},
+				// },
+				// hoursOfOperation: {
+				// 	create: [
+				// 		{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '17:00' },
+				// 		{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '17:00' },
+				// 		{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '17:00' },
+				// 	],
+				// },
 			},
 			{
 				name: 'Starbucks - Central Square',
-				address: {
-					create: {
-						street: '450 Massachusetts Ave',
-						city: 'Cambridge',
-						state: 'MA',
-						zip: '02139',
-						country: 'USA',
-					},
-					hoursOfOperation: {
-						create: [
-							{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '18:00' },
-							{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '18:00' },
-						],
-					},
-				},
+				// address: {
+				// 	create: {
+				street: '450 Massachusetts Ave',
+				city: 'Cambridge',
+				state: 'MA',
+				zip: '02139',
+				country: 'USA',
+				// },
+				// hoursOfOperation: {
+				// 	create: [
+				// 		{ dayOfWeek: 'MONDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'TUESDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'WEDNESDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'THURSDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'FRIDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'SATURDAY', openTime: '09:00', closeTime: '18:00' },
+				// 		{ dayOfWeek: 'SUNDAY', openTime: '09:00', closeTime: '18:00' },
+				// 	],
+				// },
+				// },
 			},
 		]
 
@@ -304,36 +293,39 @@ async function seed() {
 		)
 		console.timeEnd('📍 Created locations')
 
+		if (!locations[0] || !locations[1])
+			throw new Error('Required locations not found')
+
 		const meetups = [
 			{
 				title: 'Morning Coffee & Code',
 				description: 'Start your day with coffee and coding!',
-				locationId: locations[0]?.id,
+				locationId: locations[0].id,
 				startTime: new Date('2024-03-25T09:00:00'),
 				ownerId: kody.id,
 			},
 			{
 				title: 'Afternoon Tech Talk',
 				description: 'Join us for an afternoon of tech discussions',
-				locationId: locations[1]?.id,
+				locationId: locations[1].id,
 				startTime: new Date('2024-03-26T14:00:00'),
 				ownerId: kody.id,
 			},
 			{
 				title: 'Evening Coding Session',
 				description: 'Wrap up your day with a coding session',
-				locationId: locations[0]?.id,
+				locationId: locations[0].id,
 				startTime: new Date('2024-03-27T18:00:00'),
 				ownerId: kody.id,
 			},
 			{
 				title: 'Midday Coding Session',
 				description: 'Take a break and code with us',
-				locationId: locations[1]?.id,
+				locationId: locations[1].id,
 				startTime: new Date('2024-03-28T12:00:00'),
 				ownerId: kody.id,
 			},
-		]
+		].filter((meetup) => meetup.locationId)
 
 		console.time('📅 Created meetups')
 		await prisma.$transaction(
