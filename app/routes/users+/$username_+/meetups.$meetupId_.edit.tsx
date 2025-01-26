@@ -14,7 +14,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 		select: {
 			id: true,
 			name: true,
-			address: true,
+			street: true,
+			city: true,
+			state: true,
+			zip: true,
 		},
 	})
 	const meetup = await prisma.meetup.findFirst({
@@ -27,7 +30,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 				select: {
 					id: true,
 					name: true,
-					address: true,
+					street: true,
+					city: true,
+					state: true,
+					zip: true,
 				},
 			},
 		},
