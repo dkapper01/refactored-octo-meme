@@ -1,5 +1,5 @@
 import { useInputControl, type FieldMetadata } from '@conform-to/react'
-import { type Location, type Address } from '@prisma/client'
+import { type Location } from '@prisma/client'
 import { useState, useEffect } from 'react'
 import { Button } from '#app/components/ui/button.tsx'
 import {
@@ -30,29 +30,19 @@ export default function LocationPicker({
 }: {
 	meta: FieldMetadata<string>
 	options: Array<
-		Pick<
-			Location & {
-				address: Pick<Address, 'street' | 'city' | 'state' | 'zip'> | null
-			},
-			'id' | 'name' | 'address'
-		>
-	> | null
+		Pick<Location, 'id' | 'name' | 'street' | 'city' | 'state' | 'zip'>
+	>
 	location: Pick<
-		Location & { address: Address | null },
-		'id' | 'name' | 'address'
+		Location,
+		'id' | 'name' | 'street' | 'city' | 'state' | 'zip'
 	> | null
 }) {
 	const control = useInputControl(meta)
 	const [open, setOpen] = useState(false)
-	const [selectedShop, setSelectedShop] = useState<{
-		id: string
-		name: string
-		address: string
-	} | null>({
-		id: location?.id || '',
-		name: location?.name || '',
-		address: location?.address ? combineAddress(location.address) : '',
-	})
+	const [selectedShop, setSelectedShop] = useState<Pick<
+		Location,
+		'id' | 'name' | 'street' | 'city' | 'state' | 'zip'
+	> | null>(location)
 
 	// if meta.value is null, set selectedShop to null
 	useEffect(() => {
@@ -61,10 +51,19 @@ export default function LocationPicker({
 		}
 	}, [meta.value])
 
-	const openGoogleMaps = (shop: { name: string; address: string }) => {
+	const openGoogleMaps = (
+		shop: Pick<Location, 'name' | 'street' | 'city' | 'state' | 'zip'>,
+	) => {
 		window.open(
 			`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-				shop.name + ' ' + shop.address,
+				shop.name +
+					' ' +
+					combineAddress({
+						street: shop.street,
+						city: shop.city,
+						state: shop.state,
+						zip: shop.zip,
+					}),
 			)}`,
 			'_blank',
 		)
@@ -75,11 +74,7 @@ export default function LocationPicker({
 		showMapButton = true,
 		isSelected = false,
 	}: {
-		shop: {
-			id: string
-			name: string
-			address: string
-		}
+		shop: Pick<Location, 'id' | 'name' | 'street' | 'city' | 'state' | 'zip'>
 		showMapButton?: boolean
 		isSelected?: boolean
 	}) => (
@@ -100,7 +95,12 @@ export default function LocationPicker({
 				<h3 className="text-sm font-medium">{shop.name}</h3>
 				<p className="line-clamp-1 flex items-center text-xs text-muted-foreground">
 					<Icon name="map-pin" className="mr-1 h-3 w-3 flex-shrink-0" />
-					{shop.address ?? 'No address available'}
+					{combineAddress({
+						street: shop.street,
+						city: shop.city,
+						state: shop.state,
+						zip: shop.zip,
+					}) ?? 'No address available'}
 				</p>
 			</div>
 			{showMapButton && (
@@ -112,7 +112,10 @@ export default function LocationPicker({
 						e.stopPropagation()
 						openGoogleMaps({
 							name: shop.name,
-							address: shop.address,
+							street: shop.street,
+							city: shop.city,
+							state: shop.state,
+							zip: shop.zip,
 						})
 					}}
 				>
@@ -168,17 +171,17 @@ export default function LocationPicker({
 								<ScrollArea className="h-[300px]">
 									{options?.map((shop) => (
 										<CommandItem
-											key={shop.name}
-											value={shop.name}
+											key={shop.id}
+											value={shop.id}
 											onSelect={() => {
 												control.change(shop.id)
-												// setLocationId(shop.id)
 												setSelectedShop({
 													id: shop.id,
 													name: shop.name,
-													address: shop.address
-														? combineAddress(shop.address)
-														: '',
+													street: shop.street,
+													city: shop.city,
+													state: shop.state,
+													zip: shop.zip,
 												})
 												setOpen(false)
 											}}
@@ -198,9 +201,12 @@ export default function LocationPicker({
 														name="map-pin"
 														className="mr-1 h-4 w-4 flex-shrink-0"
 													/>
-													{shop.address
-														? combineAddress(shop.address)
-														: 'No address available'}
+													{combineAddress({
+														street: shop.street,
+														city: shop.city,
+														state: shop.state,
+														zip: shop.zip,
+													}) ?? 'No address available'}
 												</p>
 											</div>
 											<Button
@@ -211,9 +217,10 @@ export default function LocationPicker({
 													e.stopPropagation()
 													openGoogleMaps({
 														name: shop.name,
-														address: shop.address
-															? combineAddress(shop.address)
-															: '',
+														street: shop.street,
+														city: shop.city,
+														state: shop.state,
+														zip: shop.zip,
 													})
 												}}
 											>
