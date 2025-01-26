@@ -34,8 +34,8 @@ model Meetup {
   title       String    @default("Untitled Meetup")
   description String    @default("")
   startTime   DateTime
-  locationId  String?
-  location    Location? @relation(fields: [locationId], references: [id])
+  locationId  String
+  location    Location  @relation(fields: [locationId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   owner       User      @relation(fields: [ownerId], references: [id])
@@ -45,34 +45,30 @@ model Meetup {
 model Location {
   id       String   @id @default(cuid())
   name     String
-  address  Address?
-  meetups  Meetup[]
-  hoursOfOperation HoursOfOperation[]
-}
+  
+  street    String   @unique 
+  city      String
+  state     String
+  zip       String
+  country   String   @default("USA")
 
-model Address {
-  id      String @id @default(cuid())
-  street  String @unique
-  city    String
-  state   String
-  zip     String
-  country String @default("USA")
-
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  locationId String @unique
+  meetups Meetup[]
+  
+  // hoursOfOperation HoursOfOperation[]
 }
 
 
-model HoursOfOperation {
-  id           String   @id @default(uuid())
-  // dayOfWeek is now just a String
-  dayOfWeek    String
-  openTime     String
-  closeTime    String
-  locationId   String
-  location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-}
+// model HoursOfOperation {
+//   id           String   @id @default(uuid())
+//   // dayOfWeek is now just a String
+//   dayOfWeek    String
+//   openTime     String
+//   closeTime    String
+//   locationId   String
+//   location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+// }
 
 
 

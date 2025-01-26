@@ -5,33 +5,22 @@ import {
 	useForm,
 } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { type Meetup } from '@prisma/client'
+import { type Meetup, type Location } from '@prisma/client'
 import { type SerializeFrom } from '@remix-run/node'
-
-import {
-	Form,
-	useLoaderData,
-	// useActionData
-} from '@remix-run/react'
-import { useState, useEffect } from 'react'
+import { Form, useLoaderData, useActionData } from '@remix-run/react'
+import { useState } from 'react'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-// import CommandPreview from '#app/components/command-preveiw.tsx'
 import DateTimePicker from '#app/components/date-time-picker.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Field, TextareaField, ErrorList } from '#app/components/forms.tsx'
-import CoffeeShopsCommand from '#app/components/location-command.tsx'
+import LocationPicker from '#app/components/location-picker.tsx'
 import { Button } from '#app/components/ui/button.tsx'
-// import { Icon } from '#app/components/ui/icon'
 import { Label } from '#app/components/ui/label.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
-import { combineAddress } from '#app/utils/combine-address.ts'
 import { useIsPending } from '#app/utils/misc.tsx'
 
-import { type loader } from './__meetup-editor.server'
-
-// const PLACEHOLDER_IMAGE =
-// 	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNODAgOTBIMTIwVjExMEg4MFY5MFoiIGZpbGw9IiM5Q0EzQUYiLz48cGF0aCBkPSJNNjUgNzBIMTM1VjEzMEg2NVY3MFoiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+'
+import { type loader, type action } from './__meetup-editor.server'
 
 export const MeetupEditorSchema = z.object({
 	id: z.string().optional(),
@@ -54,29 +43,22 @@ export function MeetupEditor({
 }: {
 	meetup?: SerializeFrom<
 		Pick<Meetup, 'id' | 'title' | 'description' | 'startTime'> & {
-			location: {
-				id: string
-				name: string
-				address: {
-					street: string
-					city: string
-					state: string
-					zip: string
-				} | null
-			} | null
+			location: Pick<
+				Location,
+				'id' | 'name' | 'street' | 'city' | 'state' | 'zip'
+			>
 		}
 	>
 }) {
-	const actionData = useLoaderData<typeof loader>()
-	console.log({ actionData })
+	const loaderData = useLoaderData<typeof loader>()
+	const lastResult = useActionData<typeof action>()
 
 	const isPending = useIsPending()
 
 	const [form, fields] = useForm({
 		id: 'meetup-form',
+		lastResult: lastResult?.result,
 		constraint: getZodConstraint(MeetupEditorSchema),
-		// lastResult: actionData,
-		// shouldValidate: 'onBlur',
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
 				schema: MeetupEditorSchema,
@@ -93,20 +75,6 @@ export function MeetupEditor({
 	const [date, setDate] = useState<Date>(
 		meetup?.startTime ? new Date(meetup.startTime) : new Date(),
 	)
-	// const [openLocation, setOpenLocation] = useState(false)
-	const [locationId, setLocationId] = useState('')
-
-	const address = meetup?.location?.address
-		? combineAddress(meetup.location.address)
-		: ''
-
-	useEffect(() => {
-		if (meetup?.location) {
-			setLocationId(meetup?.location?.id)
-		}
-	}, [meetup?.location, address])
-
-	// console.log({ setLocationId })
 
 	return (
 		<div className="relative min-h-[700px] rounded-lg bg-white p-6 shadow-md">
@@ -130,14 +98,9 @@ export function MeetupEditor({
 					<button type="submit" className="hidden" />
 
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
-					{locationId ? (
-						<input
-							type="hidden"
-							name="locationId"
-							value={locationId}
-							className="h-10 w-full"
-						/>
-					) : null}
+					{/* {locationId ? ( */}
+					<input {...getInputProps(fields.locationId, { type: 'hidden' })} />
+
 					{date ? (
 						<input type="hidden" name="startTime" value={date.toISOString()} />
 					) : null}
@@ -161,60 +124,15 @@ export function MeetupEditor({
 							errors={fields.description.errors}
 						/>
 						<Label>Location</Label>
-						<CoffeeShopsCommand
-							locations={actionData.locations}
-							setLocationId={setLocationId}
+						<LocationPicker
+							meta={fields.locationId}
+							options={loaderData?.locations}
+							location={meetup?.location || null}
 						/>
-						{/* <Button
-							type="button"
-							variant="outline"
-							role="button"
-							aria-expanded={openLocation}
-							className={`mt-1 w-full justify-between ${
-								fields.locationId.errors?.length ? 'border-destructive' : ''
-							}`}
-							onClick={(e) => {
-								e.preventDefault()
-								setOpenLocation(true)
-							}}
-						>
-							{location.id ? (
-								<span className="flex items-center">
-									<img
-										src={PLACEHOLDER_IMAGE}
-										className="mr-2 h-6 w-6 rounded-full"
-									/>
-									<div className="text-left">
-										<div className="font-medium">{location.name}</div>
-										<div className="text-xs text-muted-foreground">
-											{location.address}
-										</div>
-									</div>
-								</span>
-							) : (
-								<span className="text-muted-foreground">
-									Select coffee shop...
-								</span>
-							)}
 
-							<Icon
-								name="chevron-down"
-								className="ml-2 h-4 w-4 shrink-0 opacity-50"
-							/>
-						</Button> */}
-						{/* Update to get locationId from setLocation */}
 						<div className="min-h-[24px] px-4 pb-0 pt-1">
 							<ErrorList errors={fields.locationId.errors} />
 						</div>
-
-						{/* <CommandPreview
-							locations={actionData.locations}
-							open={openLocation}
-							setOpen={setOpenLocation}
-							setLocation={({ id, name, address }) =>
-								setLocation({ id, name, address })
-							}
-						/> */}
 
 						{/* {location.id && ( */}
 						<>
@@ -248,7 +166,8 @@ export function MeetupEditor({
 						variant="destructive"
 						{...form.reset.getButtonProps()}
 						onClick={() => {
-							setLocationId('')
+							// setLocationId('')
+
 							setDate(new Date())
 						}}
 					>
