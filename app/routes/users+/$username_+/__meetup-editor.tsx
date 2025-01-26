@@ -5,11 +5,8 @@ import {
 	useForm,
 } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { type Meetup, type Location, type Address } from '@prisma/client'
+import { type Meetup, type Location } from '@prisma/client'
 import { type SerializeFrom } from '@remix-run/node'
-// import { type Meetup } from '@prisma/client'
-// import { type SerializeFrom } from '@remix-run/node'
-
 import { Form, useLoaderData, useActionData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -21,7 +18,6 @@ import LocationPicker from '#app/components/location-picker.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { Label } from '#app/components/ui/label.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
-// import { combineAddress } from '#app/utils/combine-address.ts'
 import { useIsPending } from '#app/utils/misc.tsx'
 
 import { type loader, type action } from './__meetup-editor.server'
@@ -48,10 +44,8 @@ export function MeetupEditor({
 	meetup?: SerializeFrom<
 		Pick<Meetup, 'id' | 'title' | 'description' | 'startTime'> & {
 			location: Pick<
-				Location & {
-					address: Pick<Address, 'street' | 'city' | 'state' | 'zip'>
-				},
-				'id' | 'name' | 'address'
+				Location,
+				'id' | 'name' | 'street' | 'city' | 'state' | 'zip'
 			>
 		}
 	>
