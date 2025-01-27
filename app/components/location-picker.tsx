@@ -25,11 +25,11 @@ const PLACEHOLDER_IMAGE =
 
 export default function LocationPicker({
 	meta,
-	options,
+	locations,
 	location,
 }: {
 	meta: FieldMetadata<string>
-	options: Array<
+	locations: Array<
 		Pick<Location, 'id' | 'name' | 'street' | 'city' | 'state' | 'zip'>
 	>
 	location: Pick<
@@ -169,7 +169,7 @@ export default function LocationPicker({
 							<CommandEmpty>No coffee shops found.</CommandEmpty>
 							<CommandGroup heading="Coffee Shops">
 								<ScrollArea className="h-[300px]">
-									{options?.map((shop) => (
+									{locations?.map((shop) => (
 										<CommandItem
 											key={shop.id}
 											value={shop.id}

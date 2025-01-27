@@ -95,9 +95,7 @@ export function MeetupEditor({
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
 					<input {...getInputProps(fields.locationId, { type: 'hidden' })} />
 
-					{date ? (
-						<input type="hidden" name="startTime" value={date.toISOString()} />
-					) : null}
+					<input type="hidden" name="startTime" value={date.toISOString()} />
 					<div className="">
 						<Field
 							labelProps={{ children: 'Title' }}
@@ -120,7 +118,7 @@ export function MeetupEditor({
 						<Label>Location</Label>
 						<LocationPicker
 							meta={fields.locationId}
-							options={loaderData?.locations}
+							locations={loaderData?.locations}
 							location={meetup?.location || null}
 						/>
 
