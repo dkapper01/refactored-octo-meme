@@ -84,12 +84,7 @@ export function MeetupEditor({
 				six.
 			</p>
 			<FormProvider context={form.context}>
-				<Form
-					method="post"
-					className="space-y-6"
-					{...getFormProps(form)}
-					encType="multipart/form-data"
-				>
+				<Form method="post" className="space-y-6" {...getFormProps(form)}>
 					{/*
 					This hidden submit button is here to ensure that when the user hits
 					"enter" on an input field, the primary form function is submitted
@@ -98,7 +93,6 @@ export function MeetupEditor({
 					<button type="submit" className="hidden" />
 
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
-					{/* {locationId ? ( */}
 					<input {...getInputProps(fields.locationId, { type: 'hidden' })} />
 
 					{date ? (
