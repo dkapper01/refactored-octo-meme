@@ -52,6 +52,9 @@ export function MeetupEditor({
 }) {
 	const loaderData = useLoaderData<typeof loader>()
 	const lastResult = useActionData<typeof action>()
+	const [date, setDate] = useState<Date>(
+		meetup?.startTime ? new Date(meetup.startTime) : new Date(),
+	)
 
 	const isPending = useIsPending()
 
@@ -68,13 +71,10 @@ export function MeetupEditor({
 			id: meetup?.id,
 			title: meetup?.title ?? '',
 			description: meetup?.description ?? '',
-			startTime: meetup?.startTime ?? '',
 			locationId: meetup?.location?.id ?? '',
+			startTime: meetup?.startTime ?? '',
 		},
 	})
-	const [date, setDate] = useState<Date>(
-		meetup?.startTime ? new Date(meetup.startTime) : new Date(),
-	)
 
 	return (
 		<div className="relative min-h-[700px] rounded-lg bg-white p-6 shadow-md">
@@ -126,42 +126,21 @@ export function MeetupEditor({
 							<ErrorList errors={fields.locationId.errors} />
 						</div>
 
-						{/* {location.id && ( */}
-						<>
-							<Label>Time</Label>
-							<DateTimePicker
-								// locationId={loc    ation.id}
-								// hoursOfOperation={
-								// 	data?.locations?.find(
-								// 		(location) => location.id === location.id,
-								// 	)?.hoursOfOperation ?? []
-								// }
-								date={date}
-								setDate={setDate}
-								// errors={fields.startTime.errors}
-							/>
-							{/* <input
-									type="hidden"
-									name="startTime"
-									value={date.toISOString()}
-								/> */}
+						<Label>Time</Label>
+						<DateTimePicker date={date} setDate={setDate} />
 
-							<div className="min-h-[24px] px-4 pb-0 pt-1">
-								<ErrorList errors={fields.startTime.errors} />
-							</div>
-						</>
-						{/* )} */}
+						<div className="min-h-[24px] px-4 pb-0 pt-1">
+							<ErrorList errors={fields.startTime.errors} />
+						</div>
 					</div>
 				</Form>
 				<div className={floatingToolbarClassName}>
 					<Button
 						variant="destructive"
 						{...form.reset.getButtonProps()}
-						onClick={() => {
-							// setLocationId('')
-
-							setDate(new Date())
-						}}
+						// onClick={() => {
+						// 	setDate(new Date())
+						// }}
 					>
 						Reset
 					</Button>
