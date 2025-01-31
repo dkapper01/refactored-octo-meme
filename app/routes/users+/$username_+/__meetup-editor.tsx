@@ -38,6 +38,8 @@ export const MeetupEditorSchema = z.object({
 	}),
 })
 
+// TODO: Add a time picker
+
 export function MeetupEditor({
 	meetup,
 }: {
