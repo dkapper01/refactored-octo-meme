@@ -10,8 +10,8 @@ import { type SerializeFrom } from '@remix-run/node'
 import { Form, useLoaderData, useActionData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
-// import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import DateTimePicker from '#app/components/date-time-picker.tsx'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Field, TextareaField, ErrorList } from '#app/components/forms.tsx'
 import LocationPicker from '#app/components/location-picker.tsx'
@@ -160,14 +160,14 @@ export function MeetupEditor({
 	)
 }
 
-// export function ErrorBoundary() {
-// 	return (
-// 		<GeneralErrorBoundary
-// 			statusHandlers={{
-// 				404: ({ params }) => (
-// 					<p>No note with the id "{params.noteId}" exists</p>
-// 				),
-// 			}}
-// 		/>
-// 	)
-// }
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>No note with the id "{params.noteId}" exists</p>
+				),
+			}}
+		/>
+	)
+}
