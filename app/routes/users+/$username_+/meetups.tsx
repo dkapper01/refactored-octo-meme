@@ -5,16 +5,8 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { Badge } from '#app/components/ui/badge.tsx'
-import { Button } from '#app/components/ui/button.tsx'
-import { Calendar } from '#app/components/ui/calendar.tsx'
 import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
-import { Input } from '#app/components/ui/input.tsx'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '#app/components/ui/popover.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -48,7 +40,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function MeetupsRoute() {
 	const data = useLoaderData<typeof loader>()
-	const [searchTerm, setSearchTerm] = useState('')
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -68,70 +59,7 @@ export default function MeetupsRoute() {
 	return (
 		<div className="container flex min-h-[600px] flex-col space-y-6 p-6 lg:flex-row lg:space-x-6 lg:space-y-0">
 			<div className="w-full lg:w-1/2">
-				<div className="w-full space-y-6">
-					<div className="space-y-4 rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
-						<div className="flex items-center space-x-2">
-							<div className="relative flex-grow">
-								<Input
-									type="search"
-									placeholder="Search events..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="w-full rounded-full border-gray-200 py-2 pl-8 pr-4 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:border-gray-700"
-								/>
-
-								<Icon
-									name="magnifying-glass"
-									className="absolute left-2.5 top-1/2 -translate-y-1/2 transform text-gray-400"
-								/>
-							</div>
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="outline" size="sm" className="rounded-full">
-										<Icon name="calendar" className="h-4 w-4" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0" align="end">
-									<Calendar mode="single" initialFocus />
-								</PopoverContent>
-							</Popover>
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="outline" size="sm" className="rounded-full">
-										<Icon name="funnel" className="h-4 w-4" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-[180px] p-0">
-									<div className="p-2">
-										<Button
-											variant="ghost"
-											className="w-full justify-start rounded-md text-sm"
-											onClick={() => {}}
-										>
-											All Categories
-										</Button>
-										{Array.from(['upcoming', 'in-progress', 'completed']).map(
-											(category) => (
-												<Button
-													key={category}
-													variant="ghost"
-													className="w-full justify-start rounded-md text-sm"
-													// onClick={() => setSelectedCategory(category)}
-												>
-													{category}
-												</Button>
-											),
-										)}
-									</div>
-								</PopoverContent>
-							</Popover>
-						</div>
-					</div>
-				</div>
 				<div className="space-y-4">
-					<h2 className="mb-4 mt-5 flex items-center text-xl font-semibold text-gray-800 dark:text-gray-100">
-						Your Events
-					</h2>
 					{data.owner.meetups.map((meetup) => (
 						<NavLink key={meetup.id} to={meetup.id} className="block">
 							<Card className="cursor-pointer overflow-hidden border bg-white transition-all duration-300 hover:shadow-md dark:bg-gray-800">
