@@ -1,10 +1,18 @@
 import { invariantResponse } from '@epic-web/invariant'
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { NavLink, Outlet, useLoaderData } from '@remix-run/react'
+import {
+	Form,
+	NavLink,
+	Outlet,
+	useLoaderData,
+	useLocation,
+	useParams,
+} from '@remix-run/react'
 import { format } from 'date-fns'
 // import { useState } from 'react'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { Badge } from '#app/components/ui/badge.tsx'
+import { Button } from '#app/components/ui/button.tsx'
 import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
 import { prisma } from '#app/utils/db.server.ts'
@@ -40,6 +48,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function MeetupsRoute() {
 	const data = useLoaderData<typeof loader>()
+	const location = useLocation()
+	const params = useParams()
+
+	const isNew = location.pathname.endsWith('/new')
+	const isEdit = location.pathname.includes('/edit')
+	const currentMeetupId = location.pathname.split('/').filter(Boolean).pop()
+
+	const currentMeetup = data.owner.meetups.find((m) => m.id === currentMeetupId)
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -57,58 +73,41 @@ export default function MeetupsRoute() {
 	}
 
 	return (
-		<div className="container flex min-h-[600px] flex-col space-y-6 p-6 lg:flex-row lg:space-x-6 lg:space-y-0">
-			<div className="w-full lg:w-1/2">
-				<div className="space-y-4">
-					{data.owner.meetups.map((meetup) => (
-						<NavLink key={meetup.id} to={meetup.id} className="block">
-							<Card className="cursor-pointer overflow-hidden border bg-white transition-all duration-300 hover:shadow-md dark:bg-gray-800">
-								<CardContent className="space-y-4 p-4">
-									<div className="flex items-start justify-between">
-										<div>
-											<h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-												{meetup.title}
-											</h3>
-											<p className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-												{meetup.location?.name}
-											</p>
-										</div>
-										<Badge
-											className={`${getStatusColor('upcoming')} capitalize`}
-										>
-											Upcoming
-										</Badge>
-									</div>
-									<div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-										<span className="flex items-center">
-											<Icon name="calendar" className="mr-2 h-4 w-4" />
-											{format(meetup.startTime, 'MMM d, h:mm a')}
-										</span>
-										<span className="flex items-center">
-											<Icon name="users" className="mr-2 h-4 w-4" />
-											3/4 going
-										</span>
-									</div>
-								</CardContent>
-								<CardFooter className="flex items-center justify-between bg-gray-50 p-3 dark:bg-gray-700">
-									<div className="flex items-center">
-										<Icon
-											name="star"
-											className="mr-2 h-4 w-4 text-yellow-500"
-										/>
-										<span className="text-sm capitalize text-yellow-500 dark:text-gray-400">
-											Hosted
-										</span>
-									</div>
-								</CardFooter>
-							</Card>
-						</NavLink>
-					))}
-				</div>
+		<div className="container p-6">
+			<nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+				<NavLink
+					to=""
+					className={({ isActive }) =>
+						isActive && !isNew && !isEdit ? 'font-medium text-foreground' : ''
+					}
+				>
+					Meetups
+				</NavLink>
+				{(isNew || isEdit) && (
+					<>
+						<Icon name="chevron-right" className="h-4 w-4" />
+						<span className="font-medium text-foreground">
+							{isNew ? 'New Meetup' : (currentMeetup?.title ?? 'Edit Meetup')}
+						</span>
+					</>
+				)}
+			</nav>
+
+			<div className="mb-6 flex items-center justify-between">
+				<h1 className="text-2xl font-bold">
+					{isNew ? 'Create Meetup' : isEdit ? 'Edit Meetup' : 'Your Meetups'}
+				</h1>
+				{!isNew && !isEdit && (
+					<NavLink to="new">
+						<Button>
+							<Icon name="plus" className="mr-2 h-4 w-4" />
+							New Meetup
+						</Button>
+					</NavLink>
+				)}
 			</div>
-			<div className="w-full lg:w-1/2">
-				<Outlet />
-			</div>
+
+			<Outlet />
 		</div>
 	)
 }
