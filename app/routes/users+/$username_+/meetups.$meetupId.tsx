@@ -30,6 +30,7 @@ import {
 import { requireUserWithPermission } from '#app/utils/permissions.server.ts'
 import { redirectWithToast } from '#app/utils/toast.server.ts'
 import { userHasPermission, useOptionalUser } from '#app/utils/user.ts'
+
 // import { DeleteNote } from './notes.$noteId'
 // import { type loader as notesLoader } from './notes.tsx'
 
@@ -103,11 +104,233 @@ export default function MeetupRoute() {
 	const data = useLoaderData<typeof loader>()
 	const user = useOptionalUser()
 	const isOwner = user?.id === data.meetup.ownerId
+
+	console.log({ isOwner, user })
 	const canDelete = userHasPermission(
 		user,
-		isOwner ? `delete:meetup:any` : `delete:meetup:any`,
+		isOwner ? `delete:meetup:own` : `delete:meetup:any`,
 	)
 	const displayBar = canDelete || isOwner
+
+	console.log({ canDelete, user })
+
+	// 	{
+	//     "user": {
+	//         "id": "cm6ctj0z7001c107a66oznbla",
+	//         "name": "Daniel Yayla",
+	//         "username": "daniel",
+	//         "image": {
+	//             "id": "cm6ju7clp00159725vwopw3zn"
+	//         },
+	//         "roles": [
+	//             {
+	//                 "name": "admin",
+	//                 "permissions": [
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "create",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "read",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "update",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "delete",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "create",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "read",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "update",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "delete",
+	//                         "access": "any"
+	//                     }
+	//                 ]
+	//             },
+	//             {
+	//                 "name": "user",
+	//                 "permissions": [
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "create",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "read",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "update",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "delete",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "create",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "read",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "update",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "delete",
+	//                         "access": "own"
+	//                     }
+	//                 ]
+	//             }
+	//         ]
+	//     },
+	//     "permission": "delete:meetup:own",
+	//     "action": "delete",
+	//     "entity": "meetup",
+	//     "access": [
+	//         "own"
+	//     ]
+	// }
+
+	// 	{
+	//     "user": {
+	//         "id": "cm6ctj0z7001c107a66oznbla",
+	//         "name": "Daniel Yayla",
+	//         "username": "daniel",
+	//         "image": {
+	//             "id": "cm6ju7clp00159725vwopw3zn"
+	//         },
+	//         "roles": [
+	//             {
+	//                 "name": "admin",
+	//                 "permissions": [
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "create",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "read",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "update",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "delete",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "create",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "read",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "update",
+	//                         "access": "any"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "delete",
+	//                         "access": "any"
+	//                     }
+	//                 ]
+	//             },
+	//             {
+	//                 "name": "user",
+	//                 "permissions": [
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "create",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "read",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "update",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "user",
+	//                         "action": "delete",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "create",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "read",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "update",
+	//                         "access": "own"
+	//                     },
+	//                     {
+	//                         "entity": "note",
+	//                         "action": "delete",
+	//                         "access": "own"
+	//                     }
+	//                 ]
+	//             }
+	//         ]
+	//     },
+	//     "permission": "delete:note:own",
+	//     "action": "delete",
+	//     "entity": "note",
+	//     "access": [
+	//         "own"
+	//     ]
+	// }
 
 	return (
 		<div className="relative flex flex-col">

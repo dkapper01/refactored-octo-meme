@@ -30,16 +30,16 @@ model User {
 }
 
 model Meetup {
-  id          String    @id @default(cuid())
-  title       String    @default("Untitled Meetup")
-  description String    @default("")
+  id          String   @id @default(cuid())
+  title       String
+  description String
   startTime   DateTime
   locationId  String
-  location    Location  @relation(fields: [locationId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id])
+  location    Location @relation(fields: [locationId], references: [id])
 }
 
 model Location {
