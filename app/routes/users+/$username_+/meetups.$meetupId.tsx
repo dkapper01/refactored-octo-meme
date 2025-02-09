@@ -334,45 +334,69 @@ export default function MeetupRoute() {
 
 	return (
 		<div className="relative flex flex-col">
-			<div className="min-h-[500px] overflow-hidden rounded-lg bg-white shadow-md">
-				<div className="relative h-48">
+			<div className="min-h-[600px] overflow-hidden rounded-xl bg-white shadow-lg">
+				<div className="relative h-64">
 					<img
 						src={
 							'https://images.unsplash.com/photo-1446226760091-cc85becf39b4?q=80&w=3474&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 						}
-						// alt={selectedMeetup.location}
-						className="h-48 w-full object-cover"
+						className="h-64 w-full object-cover transition-transform duration-300 hover:scale-105"
 					/>
-					<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-					<div className="absolute bottom-0 left-0 p-6">
-						<h2 className="mb-2 text-2xl font-bold text-white">
+					<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+					<div className="absolute bottom-0 left-0 p-8">
+						<h2 className="mb-3 text-3xl font-bold text-white">
 							{data.meetup.title}
 						</h2>
-						<div className="flex items-center text-sm text-white/90">
-							<Icon name="calendar" className="mr-2 h-4 w-4" />
-							<span>
-								{format(new Date(data.meetup.startTime), 'MMMM d, yyyy')} at{' '}
-								{format(new Date(data.meetup.startTime), 'h:mm a')}
-							</span>
+						<div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
+							<div className="flex items-center">
+								<Icon name="calendar" className="mr-2 h-4 w-4" />
+								<span>
+									{format(
+										new Date(data.meetup.startTime),
+										'EEEE, MMMM d, yyyy',
+									)}
+								</span>
+							</div>
+							<div className="flex items-center">
+								<Icon name="clock" className="mr-2 h-4 w-4" />
+								<span>{format(new Date(data.meetup.startTime), 'h:mm a')}</span>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div className="p-6">
-					<div className="mb-4 flex items-center text-sm text-gray-600">
-						<Icon name="map-pin" className="mr-2 h-5 w-5 text-primary" />
-						<span>{data.meetup.location?.name}</span>
+				<div className="p-8">
+					<div className="mb-6 flex items-center gap-2 rounded-lg bg-muted/30 p-4 text-sm text-gray-600">
+						<Icon name="map-pin" className="h-5 w-5 text-primary" />
+						<div className="flex flex-col">
+							<span className="font-medium">{data.meetup.location?.name}</span>
+							<span className="text-sm text-gray-500">
+								{data.meetup.location?.street}, {data.meetup.location?.city}
+							</span>
+						</div>
 					</div>
-					<p className="mb-6 text-gray-700">{data.meetup.title}</p>
+
+					<div className="space-y-6">
+						<div>
+							<h3 className="mb-2 text-lg font-semibold text-gray-900">
+								About this meetup
+							</h3>
+							<p className="whitespace-pre-wrap text-gray-700">
+								{data.meetup.description}
+							</p>
+						</div>
+
+						<div className="flex items-center gap-4 text-sm text-gray-500">
+							<div className="flex items-center gap-1">
+								<Icon name="clock" className="h-4 w-4" />
+								<span>Last updated {data.timeAgo} ago</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
 			{displayBar ? (
 				<div className={floatingToolbarClassName}>
-					<span className="text-sm text-foreground/90 max-[524px]:hidden">
-						<Icon name="clock" className="scale-125">
-							{data.timeAgo} ago
-						</Icon>
-					</span>
 					<div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">
 						{canDelete ? <DeleteMeetup id={data.meetup.id} /> : null}
 						<Button
