@@ -63,6 +63,11 @@ export async function action({ request }: ActionFunctionArgs) {
 			description,
 			locationId,
 			startTime,
+			participants: {
+				create: {
+					userId: userId,
+				},
+			},
 		},
 		update: {
 			title,
