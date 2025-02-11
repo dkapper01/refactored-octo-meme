@@ -1,20 +1,25 @@
+// External packages
 import { invariantResponse } from '@epic-web/invariant'
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { NavLink, Outlet, useLoaderData } from '@remix-run/react'
-import { format } from 'date-fns'
-import { useState } from 'react'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-import { Badge } from '#app/components/ui/badge.tsx'
-import { Button } from '#app/components/ui/button.tsx'
-import { Calendar } from '#app/components/ui/calendar.tsx'
-import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
-import { Icon } from '#app/components/ui/icon.tsx'
-import { Input } from '#app/components/ui/input.tsx'
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '#app/components/ui/popover.tsx'
+	// Form,
+	NavLink,
+	Outlet,
+	useLoaderData,
+	useLocation,
+	useParams,
+} from '@remix-run/react'
+// import { format } from 'date-fns'
+// import { useState } from 'react'
+
+// Internal components
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+// import { Badge } from '#app/components/ui/badge.tsx'
+// import { Button } from '#app/components/ui/button.tsx'
+// import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
+import { Icon } from '#app/components/ui/icon.tsx'
+
+// Utils
 import { prisma } from '#app/utils/db.server.ts'
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -48,139 +53,82 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function MeetupsRoute() {
 	const data = useLoaderData<typeof loader>()
-	const [searchTerm, setSearchTerm] = useState('')
+	const location = useLocation()
+	const params = useParams()
 
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'upcoming':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-			case 'in-progress':
-				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-			case 'completed':
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-			case 'cancelled':
-				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-			default:
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-		}
-	}
+	const isNew = location.pathname.endsWith('/new')
+	const isEdit = location.pathname.includes('/edit')
+	// console.log(params)
+
+	const currentMeetup = params.meetupId
+		? data.owner.meetups.find((m) => m.id === params.meetupId)
+		: null
+
+	// const getStatusColor = (status: string) => {
+	// 	switch (status) {
+	// 		case 'upcoming':
+	// 			return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+	// 		case 'in-progress':
+	// 			return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+	// 		case 'completed':
+	// 			return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+	// 		case 'cancelled':
+	// 			return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+	// 		default:
+	// 			return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+	// 	}
+	// }
 
 	return (
-		<div className="container flex min-h-[600px] flex-col space-y-6 p-6 lg:flex-row lg:space-x-6 lg:space-y-0">
-			<div className="w-full lg:w-1/2">
-				<div className="w-full space-y-6">
-					<div className="space-y-4 rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
-						<div className="flex items-center space-x-2">
-							<div className="relative flex-grow">
-								<Input
-									type="search"
-									placeholder="Search events..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="w-full rounded-full border-gray-200 py-2 pl-8 pr-4 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:border-gray-700"
-								/>
-
-								<Icon
-									name="magnifying-glass"
-									className="absolute left-2.5 top-1/2 -translate-y-1/2 transform text-gray-400"
-								/>
-							</div>
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="outline" size="sm" className="rounded-full">
-										<Icon name="calendar" className="h-4 w-4" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0" align="end">
-									<Calendar mode="single" initialFocus />
-								</PopoverContent>
-							</Popover>
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="outline" size="sm" className="rounded-full">
-										<Icon name="funnel" className="h-4 w-4" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-[180px] p-0">
-									<div className="p-2">
-										<Button
-											variant="ghost"
-											className="w-full justify-start rounded-md text-sm"
-											onClick={() => {}}
-										>
-											All Categories
-										</Button>
-										{Array.from(['upcoming', 'in-progress', 'completed']).map(
-											(category) => (
-												<Button
-													key={category}
-													variant="ghost"
-													className="w-full justify-start rounded-md text-sm"
-													// onClick={() => setSelectedCategory(category)}
-												>
-													{category}
-												</Button>
-											),
-										)}
-									</div>
-								</PopoverContent>
-							</Popover>
-						</div>
-					</div>
-				</div>
-				<div className="space-y-4">
-					<h2 className="mb-4 mt-5 flex items-center text-xl font-semibold text-gray-800 dark:text-gray-100">
-						Your Events
-					</h2>
-					{data.owner.meetups.map((meetup) => (
-						<NavLink key={meetup.id} to={meetup.id} className="block">
-							<Card className="cursor-pointer overflow-hidden border bg-white transition-all duration-300 hover:shadow-md dark:bg-gray-800">
-								<CardContent className="space-y-4 p-4">
-									<div className="flex items-start justify-between">
-										<div>
-											<h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-												{meetup.title}
-											</h3>
-											<p className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-												{meetup.location?.name}
-											</p>
-										</div>
-										<Badge
-											className={`${getStatusColor('upcoming')} capitalize`}
-										>
-											Upcoming
-										</Badge>
-									</div>
-									<div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-										<span className="flex items-center">
-											<Icon name="calendar" className="mr-2 h-4 w-4" />
-											{format(meetup.startTime, 'MMM d, h:mm a')}
-										</span>
-										<span className="flex items-center">
-											<Icon name="users" className="mr-2 h-4 w-4" />
-											3/4 going
-										</span>
-									</div>
-								</CardContent>
-								<CardFooter className="flex items-center justify-between bg-gray-50 p-3 dark:bg-gray-700">
-									<div className="flex items-center">
-										<Icon
-											name="star"
-											className="mr-2 h-4 w-4 text-yellow-500"
-										/>
-										<span className="text-sm capitalize text-yellow-500 dark:text-gray-400">
-											Hosted
-										</span>
-									</div>
-								</CardFooter>
-							</Card>
+		<div className="mx-auto max-w-5xl">
+			<nav className="mb-6">
+				<ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+					<li>
+						<NavLink
+							to={`/users/${params.username}`}
+							className="hover:text-gray-700 dark:hover:text-gray-300"
+						>
+							{data.owner.name || data.owner.username}
 						</NavLink>
-					))}
-				</div>
-			</div>
-			<div className="w-full lg:w-1/2">
-				<Outlet />
-			</div>
+					</li>
+					<li>
+						<Icon name="chevron-right" className="h-4 w-4" />
+					</li>
+					<li>
+						<NavLink
+							to={`/users/${params.username}/meetups`}
+							className="hover:text-gray-700 dark:hover:text-gray-300"
+						>
+							Meetups
+						</NavLink>
+					</li>
+					{currentMeetup ? (
+						<>
+							<li>
+								<Icon name="chevron-right" className="h-4 w-4" />
+							</li>
+							<li>
+								<span className="text-gray-900 dark:text-gray-100">
+									{isEdit ? 'Edit: ' : 'dadfdsf'}
+									{currentMeetup.title}
+								</span>
+							</li>
+						</>
+					) : isNew ? (
+						<>
+							<li>
+								<Icon name="chevron-right" className="h-4 w-4" />
+							</li>
+							<li>
+								<span className="text-gray-900 dark:text-gray-100">
+									New Meetup
+								</span>
+							</li>
+						</>
+					) : null}
+				</ol>
+			</nav>
+			<Outlet />
 		</div>
 	)
 }

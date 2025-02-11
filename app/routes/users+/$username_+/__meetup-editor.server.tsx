@@ -5,7 +5,6 @@ import {
 	redirect,
 	type LoaderFunctionArgs,
 } from '@remix-run/node'
-// import { z } from 'zod'
 import { requireUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { MeetupEditorSchema } from './__meetup-editor'
@@ -15,24 +14,21 @@ export async function loader({}: LoaderFunctionArgs) {
 		select: {
 			id: true,
 			name: true,
-			address: {
-				select: {
-					street: true,
-					city: true,
-					state: true,
-					zip: true,
-				},
-			},
-			hoursOfOperation: {
-				select: {
-					id: true,
-					dayOfWeek: true,
-					openTime: true,
-					closeTime: true,
-					locationId: true,
-				},
-			},
+			street: true,
+			city: true,
+			state: true,
+			zip: true,
 		},
+		// hoursOfOperation: {
+		// 	select: {
+		// 		id: true,
+		// 		dayOfWeek: true,
+		// 		openTime: true,
+		// 		closeTime: true,
+		// 		locationId: true,
+		// 	},
+		// },
+		// },
 	})
 
 	return json({ locations })
@@ -56,40 +52,27 @@ export async function action({ request }: ActionFunctionArgs) {
 		title,
 		description,
 		startTime,
-		// topics
+		locationId,
 	} = submission.value
 
-	// Fetch the current meetup to get existing topics
-	// const currentMeetup = await prisma.meetup.findUnique({
-	// 	where: { id: meetupId ?? '__new_meetup__' },
-	// 	include: { topics: true }, // Include current topics
-	// })
-
-	// const existingTopics = topics.filter((topic) => topic.id) // Topics with IDs
-	// const newTopics = topics.filter((topic) => !topic.id) // Topics without IDs
-
-	// Determine topics to disconnect (remove)
-	// const topicsToDisconnect = (currentMeetup?.topics ?? [])
-	// 	.filter(
-	// 		(currentTopic) =>
-	// 			!existingTopics.some((topic) => topic.id === currentTopic.id),
-	// 	)
-	// 	.map((topic) => ({ id: topic.id }))
-
-	// Upsert the meetup
 	const meetup = await prisma.meetup.upsert({
 		where: { id: meetupId ?? '__new_meetup__' },
 		create: {
 			ownerId: userId,
 			title,
 			description,
-			locationId: formData.get('locationId') as string,
+			locationId,
 			startTime,
+			participants: {
+				create: {
+					userId: userId,
+				},
+			},
 		},
 		update: {
 			title,
 			description,
-			locationId: formData.get('locationId') as string,
+			locationId,
 			startTime,
 		},
 		select: {

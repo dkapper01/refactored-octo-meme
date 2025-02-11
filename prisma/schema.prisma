@@ -23,6 +23,7 @@ model User {
   password    Password?
   notes       Note[]
   meetups     Meetup[]
+  participatedMeetups MeetupParticipant[]
 
   roles       Role[]
   sessions    Session[]
@@ -30,49 +31,62 @@ model User {
 }
 
 model Meetup {
-  id          String    @id @default(cuid())
-  title       String    @default("Untitled Meetup")
-  description String    @default("")
+  id          String   @id @default(cuid())
+  title       String
+  description String
   startTime   DateTime
-  locationId  String?
-  location    Location? @relation(fields: [locationId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  owner       User      @relation(fields: [ownerId], references: [id])
+  locationId  String
   ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id])
+  location    Location @relation(fields: [locationId], references: [id])
+  participants MeetupParticipant[]
+}
+
+model MeetupParticipant {
+  id        String   @id @default(cuid())
+  meetupId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetup    Meetup     @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetupId, userId])
+  @@index([userId])
+  @@index([meetupId])
 }
 
 model Location {
   id       String   @id @default(cuid())
   name     String
-  address  Address?
-  meetups  Meetup[]
-  hoursOfOperation HoursOfOperation[]
-}
+  
+  street    String   @unique 
+  city      String
+  state     String
+  zip       String
+  country   String   @default("USA")
+  image     LocationImage?
 
-model Address {
-  id      String @id @default(cuid())
-  street  String @unique
-  city    String
-  state   String
-  zip     String
-  country String @default("USA")
-
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  locationId String @unique
+  meetups Meetup[]
+  
+  // hoursOfOperation HoursOfOperation[]
 }
 
 
-model HoursOfOperation {
-  id           String   @id @default(uuid())
-  // dayOfWeek is now just a String
-  dayOfWeek    String
-  openTime     String
-  closeTime    String
-  locationId   String
-  location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-}
+// model HoursOfOperation {
+//   id           String   @id @default(uuid())
+//   // dayOfWeek is now just a String
+//   dayOfWeek    String
+//   openTime     String
+//   closeTime    String
+//   locationId   String
+//   location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+// }
 
 
 
@@ -215,4 +229,17 @@ model Connection {
   userId String
 
   @@unique([providerName, providerId])
+}
+
+model LocationImage {
+  id          String  @id @default(cuid())
+  altText     String?
+  contentType String
+  blob        Bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  location   Location   @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  locationId String     @unique
 }
