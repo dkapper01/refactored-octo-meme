@@ -23,6 +23,7 @@ export async function loader() {
 				startTime: true,
 				location: {
 					select: {
+						id: true,
 						name: true,
 						street: true,
 						city: true,
@@ -73,20 +74,23 @@ export default function Index() {
 			<main className="container fixed left-0 right-0 top-0 mt-20">
 				<div className="flex gap-8">
 					<div className="w-2/3">
-						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div className="grid grid-cols-1 gap-4 md:grid-cols-1">
 							{data.meetups.map((meetup) => (
 								<NavLink
 									key={meetup.id}
 									to={`/users/${meetup.owner.username}/meetups/${meetup.id}`}
 									prefetch="intent"
 								>
-									<Card className="h-full overflow-hidden transition-colors hover:border-primary">
+									<Card className="h-40 overflow-hidden transition-colors hover:border-primary">
 										<div className="flex h-full">
 											<div className="aspect-square w-1/3">
 												<img
-													src={PLACEHOLDER_IMAGE}
-													alt={`${meetup.title} meetup`}
+													src={`/resources/location-images/${meetup.location.id}`}
+													alt={`${meetup.title} meetup at ${meetup.location.name}`}
 													className="h-full w-full object-cover"
+													onError={(e) => {
+														e.currentTarget.src = PLACEHOLDER_IMAGE
+													}}
 												/>
 											</div>
 											<div className="flex flex-1 flex-col">

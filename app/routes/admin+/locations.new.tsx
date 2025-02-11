@@ -10,6 +10,8 @@ import { Field } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
 
+const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
+
 const schema = z.object({
 	name: z.string({ required_error: 'Name is required' }),
 	street: z.string({ required_error: 'Street address is required' }),
@@ -17,6 +19,18 @@ const schema = z.object({
 	state: z.string({ required_error: 'State is required' }),
 	zip: z.string({ required_error: 'ZIP code is required' }),
 	country: z.string().default('USA'),
+	image: z
+		.instanceof(File)
+		.refine(
+			(file) => file.size <= MAX_UPLOAD_SIZE,
+			'File size must be less than 3MB',
+		)
+		.refine(
+			(file) => ['image/jpeg', 'image/png', 'image/gif'].includes(file.type),
+			'Only jpeg, png, and gif images are allowed',
+		)
+		.optional(),
+	imageAltText: z.string().optional(),
 })
 
 export async function loader({ request }: ActionFunctionArgs) {
@@ -33,15 +47,39 @@ export async function action({ request }: ActionFunctionArgs) {
 		return json(submission.reply())
 	}
 
-	await prisma.location.create({
-		data: submission.value,
-	})
+	const { image, imageAltText, ...locationData } = submission.value
 
-	return json(
-		submission.reply({
-			resetForm: true,
-		}),
-	)
+	try {
+		const location = await prisma.location.create({
+			data: locationData,
+		})
+
+		if (image && image instanceof File && image.size > 0) {
+			const buffer = Buffer.from(await image.arrayBuffer())
+			await prisma.locationImage.create({
+				data: {
+					blob: buffer,
+					contentType: image.type,
+					altText: imageAltText,
+					locationId: location.id,
+				},
+			})
+		}
+
+		return json(
+			submission.reply({
+				resetForm: true,
+			}),
+		)
+	} catch (error) {
+		console.error('Error creating location:', error)
+		return json(
+			submission.reply({
+				formErrors: ['Failed to create location. Please try again.'],
+			}),
+			{ status: 500 },
+		)
+	}
 }
 
 export default function NewLocationRoute() {
@@ -62,7 +100,12 @@ export default function NewLocationRoute() {
 	return (
 		<div className="container mx-auto max-w-md p-6">
 			<h1 className="mb-8 text-2xl font-bold">Add New Location</h1>
-			<Form method="post" {...getFormProps(form)} className="space-y-6">
+			<Form
+				method="post"
+				{...getFormProps(form)}
+				className="space-y-6"
+				encType="multipart/form-data"
+			>
 				<Field
 					labelProps={{ children: 'Location Name' }}
 					inputProps={{
@@ -117,6 +160,28 @@ export default function NewLocationRoute() {
 					}}
 					errors={fields.country.errors}
 				/>
+
+				<div className="space-y-2">
+					<Field
+						labelProps={{ children: 'Location Image' }}
+						inputProps={{
+							...getInputProps(fields.image, { type: 'file' }),
+							accept: 'image/jpeg,image/png,image/gif',
+						}}
+						errors={fields.image.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Image Alt Text' }}
+						inputProps={{
+							...getInputProps(fields.imageAltText, { type: 'text' }),
+							placeholder: 'Describe the image',
+						}}
+						errors={fields.imageAltText.errors}
+					/>
+					<p className="text-sm text-muted-foreground">
+						Maximum file size: 3MB. Supported formats: JPEG, PNG, GIF
+					</p>
+				</div>
 
 				<div className="mt-8">
 					<StatusButton

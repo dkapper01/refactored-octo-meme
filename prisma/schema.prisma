@@ -23,6 +23,7 @@ model User {
   password    Password?
   notes       Note[]
   meetups     Meetup[]
+  participatedMeetups MeetupParticipant[]
 
   roles       Role[]
   sessions    Session[]
@@ -40,6 +41,22 @@ model Meetup {
   updatedAt   DateTime @updatedAt
   owner       User     @relation(fields: [ownerId], references: [id])
   location    Location @relation(fields: [locationId], references: [id])
+  participants MeetupParticipant[]
+}
+
+model MeetupParticipant {
+  id        String   @id @default(cuid())
+  meetupId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetup    Meetup     @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetupId, userId])
+  @@index([userId])
+  @@index([meetupId])
 }
 
 model Location {
@@ -51,6 +68,7 @@ model Location {
   state     String
   zip       String
   country   String   @default("USA")
+  image     LocationImage?
 
   meetups Meetup[]
   
@@ -211,4 +229,17 @@ model Connection {
   userId String
 
   @@unique([providerName, providerId])
+}
+
+model LocationImage {
+  id          String  @id @default(cuid())
+  altText     String?
+  contentType String
+  blob        Bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  location   Location   @relation(fields: [locationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  locationId String     @unique
 }

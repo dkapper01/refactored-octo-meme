@@ -23,6 +23,10 @@ import { cn } from '#app/utils/misc.tsx'
 const PLACEHOLDER_IMAGE =
 	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNODAgOTBIMTIwVjExMEg4MFY5MFoiIGZpbGw9IiM5Q0EzQUYiLz48cGF0aCBkPSJNNjUgNzBIMTM1VjEzMEg2NVY3MFoiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+'
 
+function getLocationImageUrl(locationId: string) {
+	return `/resources/location-images/${locationId}`
+}
+
 export default function LocationPicker({
 	meta,
 	locations,
@@ -86,9 +90,13 @@ export default function LocationPicker({
 		>
 			<div className="relative mr-3 flex-shrink-0">
 				<img
-					src={PLACEHOLDER_IMAGE}
-					alt={`${shop.name} coffee shop`}
+					src={getLocationImageUrl(shop.id)}
+					alt={`${shop.name} location`}
 					className="h-12 w-12 rounded-md object-cover"
+					onError={(e) => {
+						// Fallback to placeholder if image fails to load
+						e.currentTarget.src = PLACEHOLDER_IMAGE
+					}}
 				/>
 			</div>
 			<div className="mr-2 flex flex-grow flex-col">
@@ -189,9 +197,13 @@ export default function LocationPicker({
 										>
 											<div className="mr-3 flex-shrink-0">
 												<img
-													src={PLACEHOLDER_IMAGE}
-													alt={`${shop.name} coffee shop`}
+													src={getLocationImageUrl(shop.id)}
+													alt={`${shop.name} location`}
 													className="h-12 w-12 rounded-md object-cover"
+													onError={(e) => {
+														// Fallback to placeholder if image fails to load
+														e.currentTarget.src = PLACEHOLDER_IMAGE
+													}}
 												/>
 											</div>
 											<div className="mr-2 flex flex-grow flex-col">
