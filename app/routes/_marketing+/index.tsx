@@ -74,14 +74,14 @@ export default function Index() {
 			<main className="container fixed left-0 right-0 top-0 mt-20">
 				<div className="flex gap-8">
 					<div className="w-2/3">
-						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div className="grid grid-cols-1 gap-4 md:grid-cols-1">
 							{data.meetups.map((meetup) => (
 								<NavLink
 									key={meetup.id}
 									to={`/users/${meetup.owner.username}/meetups/${meetup.id}`}
 									prefetch="intent"
 								>
-									<Card className="h-full overflow-hidden transition-colors hover:border-primary">
+									<Card className="h-40 overflow-hidden transition-colors hover:border-primary">
 										<div className="flex h-full">
 											<div className="aspect-square w-1/3">
 												<img
