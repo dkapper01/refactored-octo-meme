@@ -53,7 +53,7 @@ import { useNonce } from './utils/nonce-provider.ts'
 import { type Theme, getTheme } from './utils/theme.server.ts'
 import { makeTimings, time } from './utils/timing.server.ts'
 import { getToast } from './utils/toast.server.ts'
-import { useOptionalUser, useUser } from './utils/user.ts'
+import { useOptionalUser, useUser, userHasRole } from './utils/user.ts'
 
 export const links: LinksFunction = () => {
 	return [
@@ -282,6 +282,8 @@ function UserDropdown() {
 	const user = useUser()
 	const submit = useSubmit()
 	const formRef = useRef<HTMLFormElement>(null)
+	const isAdmin = userHasRole(user, 'admin')
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -318,6 +320,15 @@ function UserDropdown() {
 							</Icon>
 						</Link>
 					</DropdownMenuItem>
+					{isAdmin ? (
+						<DropdownMenuItem asChild>
+							<Link prefetch="intent" to="/admin">
+								<Icon className="text-body-md" name="lock-closed">
+									Admin
+								</Icon>
+							</Link>
+						</DropdownMenuItem>
+					) : null}
 					<DropdownMenuItem
 						asChild
 						// this prevents the menu from closing before the form submission is completed
