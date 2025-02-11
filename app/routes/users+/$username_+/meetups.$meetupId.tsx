@@ -15,7 +15,7 @@ import {
 	// type MetaFunction,
 } from '@remix-run/react'
 import { formatDistanceToNow, format } from 'date-fns'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast as showToast } from 'sonner'
 import { z } from 'zod'
 // import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
@@ -52,6 +52,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			participants: {
 				select: {
 					userId: true,
+					user: {
+						select: {
+							username: true,
+							name: true,
+							image: true,
+						},
+					},
 				},
 			},
 		},
@@ -221,6 +228,7 @@ export default function MeetupRoute() {
 	const isPending = useIsPending()
 	const joinFetcher = useFetcher()
 	const leaveFetcher = useFetcher()
+	const [imageError, setImageError] = useState(false)
 
 	useEffect(() => {
 		if (
@@ -274,14 +282,16 @@ export default function MeetupRoute() {
 
 	return (
 		<div>
-			<div className="relative h-[30vh] overflow-hidden rounded-xl lg:h-[40vh]">
+			<div className="relative h-[30vh] overflow-hidden rounded-xl lg:h-[30vh]">
 				<img
-					src={`/resources/location-images/${data.meetup.location.id}`}
+					src={
+						imageError
+							? '/resources/placeholder'
+							: `/resources/location-images/${data.meetup.location.id}`
+					}
 					alt="Meetup location"
 					className="h-full w-full rounded-xl object-cover"
-					onError={(e) => {
-						e.currentTarget.src = '/placeholder.svg'
-					}}
+					onError={() => setImageError(true)}
 				/>
 				<div className="absolute inset-0 flex items-end bg-black bg-opacity-50">
 					<div className="mx-auto max-w-7xl px-4 py-12 text-white sm:px-6 lg:px-8">
@@ -319,6 +329,32 @@ export default function MeetupRoute() {
 									<Icon name="map-pin" className="mt-1 h-6 w-6 flex-shrink-0" />
 									<span>{data.meetup.location?.name}</span>
 								</div>
+							</section>
+
+							<section>
+								<h2 className="mb-4 text-2xl font-semibold">Participants</h2>
+								<ul className="list-disc pl-5">
+									{data.meetup.participants.map((participant) => (
+										<li
+											key={participant.userId}
+											className="flex items-center space-x-3"
+										>
+											<Link
+												to={`/users/${participant.user.username}`}
+												className="flex items-center space-x-2"
+											>
+												<img
+													src={`/resources/avatars/${participant.userId}`}
+													alt={`${participant.userId}'s avatar`}
+													className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-sm"
+												/>
+												<span className="text-lg font-medium text-gray-800 transition-colors duration-200 hover:text-blue-600">
+													{participant.user.name}
+												</span>
+											</Link>
+										</li>
+									))}
+								</ul>
 							</section>
 						</div>
 
