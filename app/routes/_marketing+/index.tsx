@@ -23,6 +23,7 @@ export async function loader() {
 				startTime: true,
 				location: {
 					select: {
+						id: true,
 						name: true,
 						street: true,
 						city: true,
@@ -84,9 +85,12 @@ export default function Index() {
 										<div className="flex h-full">
 											<div className="aspect-square w-1/3">
 												<img
-													src={PLACEHOLDER_IMAGE}
-													alt={`${meetup.title} meetup`}
+													src={`/resources/location-images/${meetup.location.id}`}
+													alt={`${meetup.title} meetup at ${meetup.location.name}`}
 													className="h-full w-full object-cover"
+													onError={(e) => {
+														e.currentTarget.src = PLACEHOLDER_IMAGE
+													}}
 												/>
 											</div>
 											<div className="flex flex-1 flex-col">
