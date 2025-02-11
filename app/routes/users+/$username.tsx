@@ -74,6 +74,11 @@ export default function ProfileRoute() {
 						{isLoggedInUser ? (
 							<>
 								<Button asChild>
+									<Link to="meetups" prefetch="intent">
+										My Meetups
+									</Link>
+								</Button>
+								<Button asChild>
 									<Link to="notes" prefetch="intent">
 										My notes
 									</Link>
