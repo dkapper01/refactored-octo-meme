@@ -1,14 +1,19 @@
+// External packages
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { json, type ActionFunctionArgs } from '@remix-run/node'
 import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { useId } from 'react'
 import { z } from 'zod'
-import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { prisma } from '#app/utils/db.server.ts'
+
+// Internal components
 import { Field } from '#app/components/forms.tsx'
-import { Button } from '#app/components/ui/button.tsx'
+// import { Button } from '#app/components/ui/button.tsx'
 import { StatusButton } from '#app/components/ui/status-button.tsx'
+
+// Internal utilities
+import { prisma } from '#app/utils/db.server.ts'
+import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 
