@@ -3,7 +3,7 @@ import { NavLink, useLoaderData } from '@remix-run/react'
 import { format } from 'date-fns'
 
 import { Badge } from '#app/components/ui/badge.tsx'
-import { Button } from '#app/components/ui/button.tsx'
+// import { Button } from '#app/components/ui/button.tsx'
 import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
 import { prisma } from '#app/utils/db.server.ts'
@@ -78,7 +78,7 @@ export default function Index() {
 							{data.meetups.map((meetup) => (
 								<NavLink
 									key={meetup.id}
-									to={`/users/${meetup.owner.username}/meetups/${meetup.id}`}
+									to={`/meetup/${meetup.id}`}
 									prefetch="intent"
 								>
 									<Card className="h-40 overflow-hidden transition-colors hover:border-primary">
@@ -142,8 +142,9 @@ export default function Index() {
 								<h2 className="mb-4 text-xl font-bold">Locations</h2>
 								<div className="space-y-4">
 									{data.locations.map((location) => (
-										<div
+										<NavLink
 											key={location.id}
+											to={`/location/${location.id}`}
 											className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
 										>
 											<div className="mt-1">
@@ -159,7 +160,7 @@ export default function Index() {
 													{location.zip}
 												</p>
 											</div>
-										</div>
+										</NavLink>
 									))}
 								</div>
 							</CardContent>
