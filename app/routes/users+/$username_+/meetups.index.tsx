@@ -142,91 +142,93 @@ export default function MeetupsIndexRoute() {
 	const data = useLoaderData<typeof loader>()
 	const user = useOptionalUser()
 
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'upcoming':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-			case 'in-progress':
-				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-			case 'completed':
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-			case 'cancelled':
-				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-			default:
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-		}
-	}
-
 	return (
-		<div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-			{data.owner.meetups.map((meetup) => {
-				const isOwner = user?.id === data.owner.id
-				const canDelete = userHasPermission(
-					user,
-					isOwner ? `delete:meetup:own` : `delete:meetup:any`,
-				)
+		<div className="overflow-hidden rounded-lg bg-white shadow-md dark:bg-gray-800">
+			<table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+				<thead className="bg-gray-50 dark:bg-gray-700">
+					<tr>
+						<th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Title
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Location
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Date & Time
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Status
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Actions
+						</th>
+					</tr>
+				</thead>
+				<tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+					{data.owner.meetups.map((meetup) => {
+						const isOwner = user?.id === data.owner.id
+						const canDelete = userHasPermission(
+							user,
+							isOwner ? `delete:meetup:own` : `delete:meetup:any`,
+						)
+						const canEdit = userHasPermission(
+							user,
+							isOwner ? `update:meetup:own` : `update:meetup:any`,
+						)
 
-				const canEdit = userHasPermission(
-					user,
-					isOwner ? `update:meetup:own` : `update:meetup:any`,
-				)
-
-				return (
-					<Card
-						key={meetup.id}
-						className="cursor-pointer overflow-hidden border bg-white transition-all duration-300 hover:shadow-md dark:bg-gray-800"
-					>
-						<NavLink to={meetup.id}>
-							<CardContent className="space-y-4 p-4">
-								<div className="flex items-start justify-between">
-									<div>
-										<h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-											{meetup.title}
-										</h3>
-										<p className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-											{meetup.location?.name}
-										</p>
-									</div>
-									<Badge className={`${getStatusColor('upcoming')} capitalize`}>
-										Upcoming
-									</Badge>
-								</div>
-								<div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-									<span className="flex items-center">
+						return (
+							<tr
+								key={meetup.id}
+								className="hover:bg-gray-50 dark:hover:bg-gray-700"
+							>
+								<td className="whitespace-nowrap px-6 py-4">
+									<NavLink
+										to={meetup.id}
+										className="text-sm font-medium text-gray-900 dark:text-gray-100"
+									>
+										{meetup.title}
+									</NavLink>
+								</td>
+								<td className="whitespace-nowrap px-6 py-4">
+									<span className="text-sm text-gray-500 dark:text-gray-400">
+										{meetup.location?.name}
+									</span>
+								</td>
+								<td className="whitespace-nowrap px-6 py-4">
+									<div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
 										<Icon name="calendar" className="mr-2 h-4 w-4" />
 										{format(meetup.startTime, 'MMM d, h:mm a')}
-									</span>
-									<span className="flex items-center">
-										<Icon name="users" className="mr-2 h-4 w-4" />
-										3/4 going
-									</span>
-								</div>
-							</CardContent>
-						</NavLink>
-						<CardFooter className="flex items-center justify-between bg-gray-50 p-3 dark:bg-gray-700">
-							<div className="flex items-center">
-								<Icon name="star" className="mr-2 h-4 w-4 text-yellow-500" />
-								<span className="text-sm capitalize text-yellow-500 dark:text-gray-400">
-									Hosted
-								</span>
-							</div>
-							<div className="flex gap-2">
-								{canEdit ? (
-									<NavLink to={`${meetup.id}/edit`}>
-										<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-											<Icon
-												name="pencil-1"
-												className="h-4 w-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-											/>
-										</Button>
-									</NavLink>
-								) : null}
-								{canDelete ? <DeleteMeetup id={meetup.id} /> : null}
-							</div>
-						</CardFooter>
-					</Card>
-				)
-			})}
+									</div>
+								</td>
+								<td className="whitespace-nowrap px-6 py-4">
+									<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+										Upcoming
+									</Badge>
+								</td>
+								<td className="whitespace-nowrap px-6 py-4">
+									<div className="flex gap-2">
+										{canEdit ? (
+											<NavLink to={`${meetup.id}/edit`}>
+												<Button
+													variant="ghost"
+													size="sm"
+													className="h-8 w-8 p-0"
+												>
+													<Icon
+														name="pencil-1"
+														className="h-4 w-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+													/>
+												</Button>
+											</NavLink>
+										) : null}
+										{canDelete ? <DeleteMeetup id={meetup.id} /> : null}
+									</div>
+								</td>
+							</tr>
+						)
+					})}
+				</tbody>
+			</table>
 		</div>
 	)
 }
