@@ -95,6 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	invariantResponse(meetup, 'Not found', { status: 404 })
 
 	const isOwner = meetup.ownerId === userId
+
 	await requireUserWithPermission(
 		request,
 		isOwner ? `delete:meetup:own` : `delete:meetup:any`,
@@ -165,6 +166,11 @@ export default function MeetupsIndexRoute() {
 					isOwner ? `delete:meetup:own` : `delete:meetup:any`,
 				)
 
+				const canEdit = userHasPermission(
+					user,
+					isOwner ? `update:meetup:own` : `update:meetup:any`,
+				)
+
 				return (
 					<Card
 						key={meetup.id}
@@ -205,14 +211,16 @@ export default function MeetupsIndexRoute() {
 								</span>
 							</div>
 							<div className="flex gap-2">
-								<NavLink to={`${meetup.id}/edit`}>
-									<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-										<Icon
-											name="pencil-1"
-											className="h-4 w-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-										/>
-									</Button>
-								</NavLink>
+								{canEdit ? (
+									<NavLink to={`${meetup.id}/edit`}>
+										<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+											<Icon
+												name="pencil-1"
+												className="h-4 w-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+											/>
+										</Button>
+									</NavLink>
+								) : null}
 								{canDelete ? <DeleteMeetup id={meetup.id} /> : null}
 							</div>
 						</CardFooter>
