@@ -1,16 +1,25 @@
 import { useForm, getFormProps, getInputProps } from '@conform-to/react'
 import { parseWithZod, getZodConstraint } from '@conform-to/zod'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
 	json,
 	type LoaderFunctionArgs,
 	type ActionFunctionArgs,
 } from '@remix-run/node'
-import { useLoaderData, Form, useActionData } from '@remix-run/react'
+import {
+	useLoaderData,
+	Form,
+	useActionData,
+	Link,
+	useMatches,
+} from '@remix-run/react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 import { ErrorList } from '#app/components/forms.tsx'
+import { Icon } from '#app/components/ui/icon.tsx'
 import { prisma } from '#app/utils/db.server.ts'
+import { cn } from '#app/utils/misc.tsx'
 import { requireUserWithPermission } from '#app/utils/permissions.server.ts'
 
 const CreateRoleSchema = z.object({
@@ -70,9 +79,17 @@ type User = {
 	}>
 }
 
-// type ActionData = {
-// 	result: SubmissionResult<z.infer<typeof CreateRoleSchema>>
-// }
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() })
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>
+
+export const handle: BreadcrumbHandle & SEOHandle = {
+	breadcrumb: <Icon name="users">Users</Icon>,
+	getSitemapEntries: () => null,
+}
+
+const BreadcrumbHandleMatch = z.object({
+	handle: BreadcrumbHandle,
+})
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	await requireUserWithPermission(request, 'read:user:any')
@@ -247,6 +264,18 @@ export default function AdminUsersRoute() {
 		position: { top: number; left: number }
 	} | null>(null)
 	const [isCreatingRole, setIsCreatingRole] = useState(false)
+	const matches = useMatches()
+	const breadcrumbs = matches
+		.map((m) => {
+			const result = BreadcrumbHandleMatch.safeParse(m)
+			if (!result.success || !result.data.handle.breadcrumb) return null
+			return (
+				<Link key={m.id} to={m.pathname} className="flex items-center">
+					{result.data.handle.breadcrumb}
+				</Link>
+			)
+		})
+		.filter(Boolean)
 
 	const [form, { name, description }] = useForm<
 		z.infer<typeof CreateRoleSchema>
@@ -285,6 +314,26 @@ export default function AdminUsersRoute() {
 
 	return (
 		<div className="container mx-auto py-8">
+			<div className="mb-8">
+				<ul className="flex gap-3">
+					<li>
+						<Link className="text-muted-foreground" to="/admin">
+							Admin
+						</Link>
+					</li>
+					{breadcrumbs.map((breadcrumb, i, arr) => (
+						<li
+							key={i}
+							className={cn('flex items-center gap-3', {
+								'text-muted-foreground': i < arr.length - 1,
+							})}
+						>
+							▶️ {breadcrumb}
+						</li>
+					))}
+				</ul>
+			</div>
+
 			<div className="mb-8 flex items-center justify-between">
 				<h1 className="text-2xl font-bold">User Management</h1>
 				<button
