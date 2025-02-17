@@ -1,4 +1,4 @@
-name: 🚀 Deploy
+name: Deploy
 on:
   push:
     branches:
@@ -16,31 +16,31 @@ permissions:
 
 jobs:
   lint:
-    name: ⬣ ESLint
+    name: ESLint
     runs-on: ubuntu-22.04
     steps:
-      - name: ⬇️ Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: ⎔ Setup node
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 📥 Download deps
+      - name: Download deps
         uses: bahmutov/npm-install@v1
 
-      - name: 🖼 Build icons
+      - name: Build icons
         run: npm run build:icons
 
-      - name: 🔬 Lint
+      - name: Lint
         run: npm run lint
 
   typecheck:
     name: ʦ TypeScript
     runs-on: ubuntu-22.04
     steps:
-      - name: ⬇️ Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: ⎔ Setup node
@@ -48,13 +48,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: 📥 Download deps
+      - name: Download deps
         uses: bahmutov/npm-install@v1
 
-      - name: 🖼 Build icons
+      - name: Build icons
         run: npm run build:icons
 
-      - name: 🔎 Type check
+      - name: Type check
         run: npm run typecheck --if-present
 
   vitest:
