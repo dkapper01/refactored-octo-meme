@@ -1,5 +1,10 @@
+// import { type SubmissionResult } from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
 	json,
+	unstable_createMemoryUploadHandler,
+	unstable_parseMultipartFormData,
 	type LoaderFunctionArgs,
 	type ActionFunctionArgs,
 } from '@remix-run/node'
@@ -9,10 +14,81 @@ import {
 	useNavigation,
 	isRouteErrorResponse,
 	useRouteError,
+	Link,
+	useMatches,
 } from '@remix-run/react'
+
 import { useState } from 'react'
-import { prisma } from '../../utils/db.server'
-import { requireUserWithPermission } from '../../utils/permissions.server'
+
+import { z } from 'zod'
+import { Icon } from '#app/components/ui/icon.tsx'
+import { prisma } from '#app/utils/db.server.ts'
+
+import { cn } from '#app/utils/misc.tsx'
+
+import { requireUserWithPermission } from '#app/utils/permissions.server.ts'
+
+const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
+
+const CreateLocationSchema = z.object({
+	intent: z.literal('create'),
+	name: z.string().min(1, 'Name is required'),
+	street: z.string().min(1, 'Street is required'),
+	city: z.string().min(1, 'City is required'),
+	state: z.string().min(1, 'State is required'),
+	zip: z.string().min(1, 'ZIP code is required'),
+	country: z.string().min(1, 'Country is required'),
+	image: z
+		.instanceof(File)
+		.refine(
+			(file) => file.size <= MAX_UPLOAD_SIZE,
+			'Image size must be less than 3MB',
+		)
+		.refine(
+			(file) => ['image/jpeg', 'image/png', 'image/gif'].includes(file.type),
+			'Only jpeg, png, and gif images are allowed',
+		)
+		.optional(),
+	imageAltText: z.string().optional(),
+})
+
+const EditLocationSchema = z.object({
+	intent: z.literal('edit'),
+	locationId: z.string().min(1),
+	name: z.string().min(1, 'Name is required'),
+	street: z.string().min(1, 'Street is required'),
+	city: z.string().min(1, 'City is required'),
+	state: z.string().min(1, 'State is required'),
+	zip: z.string().min(1, 'ZIP code is required'),
+	country: z.string().min(1, 'Country is required'),
+	image: z
+		.instanceof(File)
+		.refine(
+			(file) => file.size <= MAX_UPLOAD_SIZE,
+			'Image size must be less than 3MB',
+		)
+		.refine(
+			(file) => ['image/jpeg', 'image/png', 'image/gif'].includes(file.type),
+			'Only jpeg, png, and gif images are allowed',
+		)
+		.optional(),
+	imageAltText: z.string().optional(),
+})
+
+const DeleteLocationSchema = z.object({
+	intent: z.literal('delete'),
+	locationId: z.string().min(1),
+})
+
+const ActionSchema = z.discriminatedUnion('intent', [
+	CreateLocationSchema,
+	EditLocationSchema,
+	DeleteLocationSchema,
+])
+
+// type ActionData = {
+// 	result: SubmissionResult<z.infer<typeof ActionSchema>>
+// }
 
 type Location = {
 	id: string
@@ -27,6 +103,18 @@ type Location = {
 		altText?: string | null
 	} | null
 }
+
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() })
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>
+
+export const handle: BreadcrumbHandle & SEOHandle = {
+	breadcrumb: <Icon name="building-storefront">Locations</Icon>,
+	getSitemapEntries: () => null,
+}
+
+const BreadcrumbHandleMatch = z.object({
+	handle: BreadcrumbHandle,
+})
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	try {
@@ -71,61 +159,127 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-	const formData = await request.formData()
-	const intent = formData.get('intent')
+	const formData = await unstable_parseMultipartFormData(
+		request,
+		unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
+	)
+	const submission = await parseWithZod(formData, {
+		schema: ActionSchema,
+		async: true,
+	})
 
-	if (intent === 'create') {
-		await requireUserWithPermission(request, 'create:meetup:any')
-
-		const name = formData.get('name') as string
-		const street = formData.get('street') as string
-		const city = formData.get('city') as string
-		const state = formData.get('state') as string
-		const zip = formData.get('zip') as string
-		const country = formData.get('country') as string
-
-		await prisma.location.create({
-			data: {
-				name,
-				street,
-				city,
-				state,
-				zip,
-				country,
-			},
-		})
-	} else if (intent === 'delete') {
-		await requireUserWithPermission(request, 'delete:meetup:any')
-
-		const locationId = formData.get('locationId') as string
-		await prisma.location.delete({
-			where: { id: locationId },
-		})
-	} else if (intent === 'edit') {
-		await requireUserWithPermission(request, 'update:meetup:any')
-
-		const locationId = formData.get('locationId') as string
-		const name = formData.get('name') as string
-		const street = formData.get('street') as string
-		const city = formData.get('city') as string
-		const state = formData.get('state') as string
-		const zip = formData.get('zip') as string
-		const country = formData.get('country') as string
-
-		await prisma.location.update({
-			where: { id: locationId },
-			data: {
-				name,
-				street,
-				city,
-				state,
-				zip,
-				country,
-			},
-		})
+	if (submission.status !== 'success') {
+		return json(
+			{ result: submission.reply() },
+			{ status: submission.status === 'error' ? 400 : 200 },
+		)
 	}
 
-	return json({ success: true })
+	const { intent } = submission.value
+
+	try {
+		switch (intent) {
+			case 'create': {
+				await requireUserWithPermission(request, 'create:meetup:any')
+				const { name, street, city, state, zip, country, image, imageAltText } =
+					submission.value
+
+				const location = await prisma.location.create({
+					data: {
+						name,
+						street,
+						city,
+						state,
+						zip,
+						country,
+					},
+				})
+
+				if (image && image instanceof File && image.size > 0) {
+					const buffer = Buffer.from(await image.arrayBuffer())
+					await prisma.locationImage.create({
+						data: {
+							locationId: location.id,
+							blob: buffer,
+							contentType: image.type,
+							altText: imageAltText,
+						},
+					})
+				}
+				break
+			}
+
+			case 'edit': {
+				await requireUserWithPermission(request, 'update:meetup:any')
+				const {
+					locationId,
+					name,
+					street,
+					city,
+					state,
+					zip,
+					country,
+					image,
+					imageAltText,
+				} = submission.value
+
+				await prisma.$transaction(async (tx) => {
+					await tx.location.update({
+						where: { id: locationId },
+						data: {
+							name,
+							street,
+							city,
+							state,
+							zip,
+							country,
+						},
+					})
+
+					if (image && image instanceof File && image.size > 0) {
+						// Delete existing image if there is one
+						await tx.locationImage.deleteMany({
+							where: { locationId },
+						})
+
+						// Create new image
+						await tx.locationImage.create({
+							data: {
+								locationId,
+								blob: Buffer.from(await image.arrayBuffer()),
+								contentType: image.type,
+								altText: imageAltText,
+							},
+						})
+					}
+				})
+				break
+			}
+
+			case 'delete': {
+				await requireUserWithPermission(request, 'delete:meetup:any')
+				const { locationId } = submission.value
+
+				await prisma.location.delete({
+					where: { id: locationId },
+				})
+				break
+			}
+		}
+
+		return json({ result: { status: 'success' as const } })
+	} catch (error) {
+		console.error('Action error:', error)
+		return json(
+			{
+				result: {
+					status: 'error' as const,
+					errors: { '': ['An unexpected error occurred'] },
+				},
+			},
+			{ status: 500 },
+		)
+	}
 }
 
 export function ErrorBoundary() {
@@ -207,6 +361,19 @@ export default function AdminLocationsRoute() {
 	)
 	const [isCreating, setIsCreating] = useState(false)
 	const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
+	const [previewImage, setPreviewImage] = useState<string | null>(null)
+	const matches = useMatches()
+	const breadcrumbs = matches
+		.map((m) => {
+			const result = BreadcrumbHandleMatch.safeParse(m)
+			if (!result.success || !result.data.handle.breadcrumb) return null
+			return (
+				<Link key={m.id} to={m.pathname} className="flex items-center">
+					{result.data.handle.breadcrumb}
+				</Link>
+			)
+		})
+		.filter(Boolean)
 
 	const isSubmitting = navigation.state === 'submitting'
 
@@ -215,7 +382,27 @@ export default function AdminLocationsRoute() {
 	}
 
 	return (
-		<div className="container mx-auto py-8">
+		<div className="container">
+			<div className="mb-8">
+				<ul className="flex gap-3">
+					<li>
+						<Link className="text-muted-foreground" to="/admin">
+							Admin
+						</Link>
+					</li>
+					{breadcrumbs.map((breadcrumb, i, arr) => (
+						<li
+							key={i}
+							className={cn('flex items-center gap-3', {
+								'text-muted-foreground': i < arr.length - 1,
+							})}
+						>
+							▶️ {breadcrumb}
+						</li>
+					))}
+				</ul>
+			</div>
+
 			<div className="mb-6 flex items-center justify-between">
 				<h1 className="text-2xl font-bold">Location Management</h1>
 				<button
@@ -229,7 +416,11 @@ export default function AdminLocationsRoute() {
 			{isCreating && (
 				<div className="mb-8 rounded-lg bg-white p-6 shadow-md">
 					<h2 className="mb-4 text-xl font-semibold">Add New Location</h2>
-					<Form method="post" className="space-y-4">
+					<Form
+						method="post"
+						className="space-y-4"
+						encType="multipart/form-data"
+					>
 						<input type="hidden" name="intent" value="create" />
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 							<div>
@@ -324,10 +515,72 @@ export default function AdminLocationsRoute() {
 								/>
 							</div>
 						</div>
+
+						<div className="mt-4 space-y-4">
+							<div>
+								<label
+									htmlFor="image"
+									className="block text-sm font-medium text-gray-700"
+								>
+									Location Image
+								</label>
+								<div className="mt-2 flex items-center gap-4">
+									<div className="relative h-32 w-32">
+										{previewImage ? (
+											<img
+												src={previewImage}
+												alt="Location preview"
+												className="h-32 w-32 rounded-lg object-cover"
+											/>
+										) : (
+											<div className="flex h-32 w-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
+												<span className="text-sm text-gray-500">
+													No image selected
+												</span>
+											</div>
+										)}
+									</div>
+									<div className="flex flex-col gap-2">
+										<input
+											type="file"
+											name="image"
+											id="image"
+											accept="image/jpeg,image/png,image/gif"
+											onChange={(e) => {
+												const file = e.target.files?.[0]
+												if (file) {
+													const reader = new FileReader()
+													reader.onloadend = () => {
+														setPreviewImage(reader.result as string)
+													}
+													reader.readAsDataURL(file)
+												} else {
+													setPreviewImage(null)
+												}
+											}}
+											className="text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+										/>
+										<input
+											type="text"
+											name="imageAltText"
+											placeholder="Image description (alt text)"
+											className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+										/>
+										<p className="text-xs text-gray-500">
+											Maximum file size: 3MB. Supported formats: JPEG, PNG, GIF
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<div className="flex justify-end gap-2">
 							<button
 								type="button"
-								onClick={() => setIsCreating(false)}
+								onClick={() => {
+									setIsCreating(false)
+									setPreviewImage(null)
+								}}
 								className="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 							>
 								Cancel
@@ -367,7 +620,11 @@ export default function AdminLocationsRoute() {
 							<tr key={location.id}>
 								{editingLocationId === location.id ? (
 									<td colSpan={4} className="px-6 py-4">
-										<Form method="post" className="space-y-4">
+										<Form
+											method="post"
+											className="space-y-4"
+											encType="multipart/form-data"
+										>
 											<input type="hidden" name="intent" value="edit" />
 											<input
 												type="hidden"
@@ -472,10 +729,79 @@ export default function AdminLocationsRoute() {
 													/>
 												</div>
 											</div>
+
+											<div className="mt-4">
+												<label
+													htmlFor="image"
+													className="block text-sm font-medium text-gray-700"
+												>
+													Location Image
+												</label>
+												<div className="mt-2 flex items-center gap-4">
+													<div className="relative h-32 w-32">
+														{previewImage ? (
+															<img
+																src={previewImage}
+																alt="Location preview"
+																className="h-32 w-32 rounded-lg object-cover"
+															/>
+														) : location.image ? (
+															<img
+																src={`/resources/location-images/${location.id}`}
+																alt={location.image.altText || location.name}
+																className="h-32 w-32 rounded-lg object-cover"
+																onError={() => handleImageError(location.id)}
+															/>
+														) : (
+															<div className="flex h-32 w-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
+																<span className="text-sm text-gray-500">
+																	No image
+																</span>
+															</div>
+														)}
+													</div>
+													<div className="flex flex-col gap-2">
+														<input
+															type="file"
+															name="image"
+															id="image"
+															accept="image/jpeg,image/png,image/gif"
+															onChange={(e) => {
+																const file = e.target.files?.[0]
+																if (file) {
+																	const reader = new FileReader()
+																	reader.onloadend = () => {
+																		setPreviewImage(reader.result as string)
+																	}
+																	reader.readAsDataURL(file)
+																} else {
+																	setPreviewImage(null)
+																}
+															}}
+															className="text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+														/>
+														<input
+															type="text"
+															name="imageAltText"
+															defaultValue={location.image?.altText || ''}
+															placeholder="Image description (alt text)"
+															className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+														/>
+														<p className="text-xs text-gray-500">
+															Maximum file size: 3MB. Supported formats: JPEG,
+															PNG, GIF
+														</p>
+													</div>
+												</div>
+											</div>
+
 											<div className="flex justify-end gap-2">
 												<button
 													type="button"
-													onClick={() => setEditingLocationId(null)}
+													onClick={() => {
+														setEditingLocationId(null)
+														setPreviewImage(null)
+													}}
 													className="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 												>
 													Cancel
