@@ -1,17 +1,66 @@
-// External packages
-import { Prisma } from '@prisma/client'
+import { useForm, getFormProps, getInputProps } from '@conform-to/react'
+import { parseWithZod, getZodConstraint } from '@conform-to/zod'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import {
 	json,
 	type LoaderFunctionArgs,
 	type ActionFunctionArgs,
 } from '@remix-run/node'
-import { useLoaderData, Form, useActionData } from '@remix-run/react'
+import {
+	useLoaderData,
+	Form,
+	useActionData,
+	Link,
+	useMatches,
+} from '@remix-run/react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-// Internal utilities
+import { z } from 'zod'
+import { ErrorList } from '#app/components/forms.tsx'
+import { Icon } from '#app/components/ui/icon.tsx'
 import { prisma } from '#app/utils/db.server.ts'
+import { cn } from '#app/utils/misc.tsx'
 import { requireUserWithPermission } from '#app/utils/permissions.server.ts'
-// import { type PermissionString } from '#app/utils/user.ts'
+
+const CreateRoleSchema = z.object({
+	intent: z.literal('createRole'),
+	name: z.string().min(1, 'Name is required'),
+	description: z.string().min(1, 'Description is required'),
+})
+
+const UpdateRolesSchema = z.object({
+	intent: z.literal('updateRoles'),
+	userId: z.string().min(1),
+	roles: z.array(z.string()),
+})
+
+const UpdatePermissionsSchema = z.object({
+	intent: z.literal('updatePermissions'),
+	roleId: z.string().min(1),
+	permissionId: z.string().optional(),
+	action: z.string().min(1),
+	entity: z.string().min(1),
+	access: z.string().min(1),
+})
+
+const DeletePermissionSchema = z.object({
+	intent: z.literal('deletePermission'),
+	permissionId: z.string().min(1),
+})
+
+const DeleteRoleSchema = z.object({
+	intent: z.literal('deleteRole'),
+	userId: z.string().min(1),
+	roleId: z.string().min(1),
+})
+
+const ActionSchema = z.discriminatedUnion('intent', [
+	CreateRoleSchema,
+	UpdateRolesSchema,
+	UpdatePermissionsSchema,
+	DeletePermissionSchema,
+	DeleteRoleSchema,
+])
 
 type User = {
 	id: string
@@ -30,17 +79,17 @@ type User = {
 	}>
 }
 
-type ActionData = {
-	success: boolean
-	error?: string
-	field?: string
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() })
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>
+
+export const handle: BreadcrumbHandle & SEOHandle = {
+	breadcrumb: <Icon name="users">Users</Icon>,
+	getSitemapEntries: () => null,
 }
 
-// type Role = {
-// 	id: string
-// 	name: string
-// 	description: string
-// }
+const BreadcrumbHandleMatch = z.object({
+	handle: BreadcrumbHandle,
+})
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	await requireUserWithPermission(request, 'read:user:any')
@@ -94,96 +143,114 @@ export async function action({ request }: ActionFunctionArgs) {
 	await requireUserWithPermission(request, 'update:user:any')
 
 	const formData = await request.formData()
-	const intent = formData.get('intent')
-
-	if (intent === 'createRole') {
-		const name = formData.get('name') as string
-		const description = formData.get('description') as string
-
-		try {
-			await prisma.role.create({
-				data: {
-					name,
-					description,
-				},
-			})
-			return json<ActionData>({ success: true })
-		} catch (error) {
-			if (error instanceof Prisma.PrismaClientKnownRequestError) {
-				// The P2002 error code indicates a unique constraint violation
-				if (error.code === 'P2002') {
-					return json<ActionData>(
-						{
-							success: false,
-							error: `A role with the name "${name}" already exists.`,
-							field: 'name',
-						},
-						{ status: 400 },
-					)
+	const submission = await parseWithZod(formData, {
+		schema: ActionSchema.superRefine(async (data, ctx) => {
+			if (data.intent === 'createRole') {
+				const existingRole = await prisma.role.findFirst({
+					where: { name: data.name },
+				})
+				if (existingRole) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `A role with the name "${data.name}" already exists.`,
+						path: ['name'],
+					})
 				}
 			}
-			return json<ActionData>(
-				{
-					success: false,
-					error: 'An error occurred while creating the role.',
-				},
-				{ status: 500 },
-			)
-		}
-	} else if (intent === 'updateRoles') {
-		const userId = formData.get('userId') as string
-		const roleIds = formData.getAll('roles') as string[]
-		await prisma.user.update({
-			where: { id: userId },
-			data: {
-				roles: {
-					set: roleIds.map((id) => ({ id })),
-				},
-			},
-		})
-	} else if (intent === 'updatePermissions') {
-		const roleId = formData.get('roleId') as string
-		const permissionId = formData.get('permissionId') as string
-		const action = formData.get('action') as string
-		const entity = formData.get('entity') as string
-		const access = formData.get('access') as string
+		}),
+		async: true,
+	})
 
-		if (permissionId) {
-			await prisma.permission.update({
-				where: { id: permissionId },
-				data: { action, entity, access },
-			})
-		} else {
-			await prisma.permission.create({
-				data: {
-					action,
-					entity,
-					access,
-					roles: {
-						connect: { id: roleId },
-					},
-				},
-			})
-		}
-	} else if (intent === 'deletePermission') {
-		const permissionId = formData.get('permissionId') as string
-		await prisma.permission.delete({
-			where: { id: permissionId },
-		})
-	} else if (intent === 'deleteRole') {
-		const userId = formData.get('userId') as string
-		const roleId = formData.get('roleId') as string
-		await prisma.user.update({
-			where: { id: userId },
-			data: {
-				roles: {
-					disconnect: { id: roleId },
-				},
-			},
-		})
+	if (submission.status !== 'success') {
+		return json(
+			{ result: submission.reply() },
+			{ status: submission.status === 'error' ? 400 : 200 },
+		)
 	}
 
-	return json<ActionData>({ success: true })
+	const { intent } = submission.value
+
+	try {
+		switch (intent) {
+			case 'createRole': {
+				const { name, description } = submission.value
+				await prisma.role.create({
+					data: { name, description },
+				})
+				break
+			}
+
+			case 'updateRoles': {
+				const { userId, roles } = submission.value
+				await prisma.user.update({
+					where: { id: userId },
+					data: {
+						roles: {
+							set: roles.map((id) => ({ id })),
+						},
+					},
+				})
+				break
+			}
+
+			case 'updatePermissions': {
+				const { roleId, permissionId, action, entity, access } =
+					submission.value
+				if (permissionId) {
+					await prisma.permission.update({
+						where: { id: permissionId },
+						data: { action, entity, access },
+					})
+				} else {
+					await prisma.permission.create({
+						data: {
+							action,
+							entity,
+							access,
+							roles: {
+								connect: { id: roleId },
+							},
+						},
+					})
+				}
+				break
+			}
+
+			case 'deletePermission': {
+				const { permissionId } = submission.value
+				await prisma.permission.delete({
+					where: { id: permissionId },
+				})
+				break
+			}
+
+			case 'deleteRole': {
+				const { userId, roleId } = submission.value
+				await prisma.user.update({
+					where: { id: userId },
+					data: {
+						roles: {
+							disconnect: { id: roleId },
+						},
+					},
+				})
+				break
+			}
+		}
+
+		return json({ result: { status: 'success' as const } })
+	} catch (error) {
+		console.error('Action error:', error)
+		return json(
+			{
+				result: {
+					status: 'error' as const,
+					errors: { '': ['An unexpected error occurred'] },
+				},
+			},
+			{ status: 500 },
+		)
+	}
 }
 
 export default function AdminUsersRoute() {
@@ -197,6 +264,30 @@ export default function AdminUsersRoute() {
 		position: { top: number; left: number }
 	} | null>(null)
 	const [isCreatingRole, setIsCreatingRole] = useState(false)
+	const matches = useMatches()
+	const breadcrumbs = matches
+		.map((m) => {
+			const result = BreadcrumbHandleMatch.safeParse(m)
+			if (!result.success || !result.data.handle.breadcrumb) return null
+			return (
+				<Link key={m.id} to={m.pathname} className="flex items-center">
+					{result.data.handle.breadcrumb}
+				</Link>
+			)
+		})
+		.filter(Boolean)
+
+	const [form, { name, description }] = useForm<
+		z.infer<typeof CreateRoleSchema>
+	>({
+		id: 'create-role',
+		constraint: getZodConstraint(CreateRoleSchema),
+		lastResult: actionData?.result,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: CreateRoleSchema })
+		},
+		shouldRevalidate: 'onBlur',
+	})
 
 	const actions = ['create', 'read', 'update', 'delete']
 	const entities = ['user', 'note', 'meetup', 'location']
@@ -223,6 +314,26 @@ export default function AdminUsersRoute() {
 
 	return (
 		<div className="container mx-auto py-8">
+			<div className="mb-8">
+				<ul className="flex gap-3">
+					<li>
+						<Link className="text-muted-foreground" to="/admin">
+							Admin
+						</Link>
+					</li>
+					{breadcrumbs.map((breadcrumb, i, arr) => (
+						<li
+							key={i}
+							className={cn('flex items-center gap-3', {
+								'text-muted-foreground': i < arr.length - 1,
+							})}
+						>
+							▶️ {breadcrumb}
+						</li>
+					))}
+				</ul>
+			</div>
+
 			<div className="mb-8 flex items-center justify-between">
 				<h1 className="text-2xl font-bold">User Management</h1>
 				<button
@@ -272,6 +383,7 @@ export default function AdminUsersRoute() {
 					<Form
 						method="post"
 						className="space-y-4"
+						{...getFormProps(form)}
 						onSubmit={(e) => {
 							const form = e.currentTarget
 							const nameInput = form.elements.namedItem(
@@ -298,20 +410,14 @@ export default function AdminUsersRoute() {
 								Role Name
 							</label>
 							<input
-								type="text"
-								name="name"
-								id="name"
+								{...getInputProps(name, { type: 'text' })}
 								required
 								className={`mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-									actionData?.field === 'name' && actionData?.error
-										? 'border-red-300'
-										: 'border-gray-300'
+									name.errors ? 'border-red-300' : 'border-gray-300'
 								}`}
 								placeholder="e.g., Editor, Moderator"
 							/>
-							{actionData?.field === 'name' && actionData?.error ? (
-								<p className="mt-1 text-sm text-red-600">{actionData.error}</p>
-							) : null}
+							<ErrorList errors={name.errors} id={name.id} />
 						</div>
 						<div>
 							<label
@@ -321,13 +427,12 @@ export default function AdminUsersRoute() {
 								Description
 							</label>
 							<input
-								type="text"
-								name="description"
-								id="description"
+								{...getInputProps(description, { type: 'text' })}
 								required
 								className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 								placeholder="Brief description of the role's responsibilities"
 							/>
+							<ErrorList errors={description.errors} id={description.id} />
 						</div>
 						<div className="flex justify-end">
 							<button

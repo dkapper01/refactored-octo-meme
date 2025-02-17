@@ -95,8 +95,6 @@ export function MeetupEditor({
 					<button type="submit" className="hidden" />
 
 					{meetup ? <input type="hidden" name="id" value={meetup.id} /> : null}
-					<input {...getInputProps(fields.locationId, { type: 'hidden' })} />
-
 					<input type="hidden" name="startTime" value={date.toISOString()} />
 					<div className="">
 						<Field

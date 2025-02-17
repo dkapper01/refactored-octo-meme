@@ -1,26 +1,32 @@
 // External packages
 import { invariantResponse } from '@epic-web/invariant'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import {
-	// Form,
-	NavLink,
+	Link,
 	Outlet,
 	useLoaderData,
 	useLocation,
 	useParams,
+	useMatches,
 } from '@remix-run/react'
-// import { format } from 'date-fns'
-// import { useState } from 'react'
+import { z } from 'zod'
 
 // Internal components
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-// import { Badge } from '#app/components/ui/badge.tsx'
-// import { Button } from '#app/components/ui/button.tsx'
-// import { Card, CardContent, CardFooter } from '#app/components/ui/card.tsx'
 import { Icon } from '#app/components/ui/icon.tsx'
 
 // Utils
 import { prisma } from '#app/utils/db.server.ts'
+import { cn } from '#app/utils/misc.tsx'
+
+export const BreadcrumbHandle = z.object({ breadcrumb: z.any() })
+export type BreadcrumbHandle = z.infer<typeof BreadcrumbHandle>
+
+export const handle: BreadcrumbHandle & SEOHandle = {
+	breadcrumb: <Icon name="calendar">Meetups</Icon>,
+	getSitemapEntries: () => null,
+}
 
 export async function loader({ params }: LoaderFunctionArgs) {
 	const owner = await prisma.user.findFirst({
@@ -51,57 +57,56 @@ export async function loader({ params }: LoaderFunctionArgs) {
 	return json({ owner })
 }
 
+const BreadcrumbHandleMatch = z.object({
+	handle: BreadcrumbHandle,
+})
+
 export default function MeetupsRoute() {
 	const data = useLoaderData<typeof loader>()
 	const location = useLocation()
 	const params = useParams()
+	const matches = useMatches()
 
 	const isNew = location.pathname.endsWith('/new')
 	const isEdit = location.pathname.includes('/edit')
-	// console.log(params)
 
 	const currentMeetup = params.meetupId
 		? data.owner.meetups.find((m) => m.id === params.meetupId)
 		: null
 
-	// const getStatusColor = (status: string) => {
-	// 	switch (status) {
-	// 		case 'upcoming':
-	// 			return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-	// 		case 'in-progress':
-	// 			return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-	// 		case 'completed':
-	// 			return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-	// 		case 'cancelled':
-	// 			return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-	// 		default:
-	// 			return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-	// 	}
-	// }
+	const breadcrumbs = matches
+		.map((m) => {
+			const result = BreadcrumbHandleMatch.safeParse(m)
+			if (!result.success || !result.data.handle.breadcrumb) return null
+			return (
+				<Link key={m.id} to={m.pathname} className="flex items-center">
+					{result.data.handle.breadcrumb}
+				</Link>
+			)
+		})
+		.filter(Boolean)
 
 	return (
 		<div className="mx-auto max-w-5xl">
 			<nav className="mb-6">
-				<ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-					<li>
-						<NavLink
-							to={`/users/${params.username}`}
-							className="hover:text-gray-700 dark:hover:text-gray-300"
-						>
-							{data.owner.name || data.owner.username}
-						</NavLink>
-					</li>
-					<li>
-						<Icon name="chevron-right" className="h-4 w-4" />
-					</li>
-					<li>
-						<NavLink
-							to={`/users/${params.username}/meetups`}
-							className="hover:text-gray-700 dark:hover:text-gray-300"
-						>
-							Meetups
-						</NavLink>
-					</li>
+				<ol className="flex items-center gap-3">
+					{breadcrumbs.length ? (
+						<>
+							{breadcrumbs.map((breadcrumb, i, arr) => (
+								<li
+									key={i}
+									className={cn('flex items-center gap-3', {
+										'text-muted-foreground': i < arr.length - 1,
+									})}
+								>
+									{breadcrumb}
+									{i < arr.length - 1 ? (
+										<Icon name="chevron-right" className="h-4 w-4" />
+									) : null}
+								</li>
+							))}
+						</>
+					) : null}
 					{currentMeetup ? (
 						<>
 							<li>
@@ -109,7 +114,7 @@ export default function MeetupsRoute() {
 							</li>
 							<li>
 								<span className="text-gray-900 dark:text-gray-100">
-									{isEdit ? 'Edit: ' : 'dadfdsf'}
+									{isEdit ? 'Edit: ' : ''}
 									{currentMeetup.title}
 								</span>
 							</li>
