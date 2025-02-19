@@ -34,8 +34,6 @@ export default defineConfig({
 	},
 	plugins: [
 		envOnlyMacros(),
-		// it would be really nice to have this enabled in tests, but we'll have to
-		// wait until https://github.com/remix-run/remix/issues/9871 is fixed
 		process.env.NODE_ENV === 'test'
 			? null
 			: remix({
@@ -55,11 +53,6 @@ export default defineConfig({
 								'**/*.css',
 								'**/*.test.{js,jsx,ts,tsx}',
 								'**/__*.*',
-								// This is for server-side utilities you want to colocate
-								// next to your routes without making an additional
-								// directory. If you need a route that includes "server" or
-								// "client" in the filename, use the escape brackets like:
-								// my-route.[server].tsx
 								'**/*.server.*',
 								'**/*.client.*',
 							],
