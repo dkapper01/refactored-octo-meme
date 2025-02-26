@@ -77,7 +77,7 @@ export const links: LinksFunction = () => {
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [
-		{ title: data ? 'Epic Notes' : 'Error | Epic Notes' },
+		{ title: data ? 'Tiny Meets' : 'Error | Tiny Meets' },
 		{ name: 'description', content: `Your own captain's log` },
 	]
 }
@@ -219,21 +219,26 @@ function App() {
 				<header className="fixed left-0 right-0 top-0 z-50 bg-white py-3">
 					<nav className="container flex flex-wrap items-center justify-between">
 						<Logo />
-						<div className="ml-auto mr-5">
+						{/* <div className="ml-auto mr-5">
 							<Button asChild>
 								<Link to={`/users/${user?.username}/meetups/new`}>
 									<Icon name="plus" size="lg" />
 									Host a Meetup
 								</Link>
 							</Button>
-						</div>
+						</div> */}
 						<div className="flex items-center gap-10">
 							{user ? (
 								<UserDropdown />
 							) : (
-								<Button asChild variant="default" size="lg">
-									<Link to="/login">Log In</Link>
-								</Button>
+								<>
+									<Button asChild variant="ghost" size="lg">
+										<Link to="/location-manager-login">Location Manager?</Link>
+									</Button>
+									<Button asChild variant="default" size="lg">
+										<Link to="/login">Log In</Link>
+									</Button>
+								</>
 							)}
 						</div>
 					</nav>
