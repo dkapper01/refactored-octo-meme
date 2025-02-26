@@ -244,10 +244,10 @@ export default function MeetupsIndexRoute() {
 // 	const noteCount = notesMatch?.data?.owner.notes.length ?? 0
 // 	const notesText = noteCount === 1 ? 'note' : 'notes'
 // 	return [
-// 		{ title: `${displayName}'s Notes | Epic Notes` },
+// 		{ title: `${displayName}'s Notes | Tiny Meets` },
 // 		{
 // 			name: 'description',
-// 			content: `Checkout ${displayName}'s ${noteCount} ${notesText} on Epic Notes`,
+// 			content: `Checkout ${displayName}'s ${noteCount} ${notesText} on Tiny Meets`,
 // 		},
 // 	]
 // }
