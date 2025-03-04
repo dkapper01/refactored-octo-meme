@@ -215,7 +215,7 @@ function App() {
 
 	return (
 		<>
-			<div className="flex h-screen flex-col justify-between bg-gray-50">
+			<div className="flex h-full flex-col justify-between bg-gray-50">
 				<header className="fixed left-0 right-0 top-0 z-50 bg-white py-3">
 					<nav className="container flex flex-wrap items-center justify-between">
 						<Logo />
