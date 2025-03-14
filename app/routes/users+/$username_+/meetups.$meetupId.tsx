@@ -472,7 +472,7 @@ export function DeleteMeetup({ id }: { id: string }) {
 // 			? data?.note.content.slice(0, 97) + '...'
 // 			: 'No content'
 // 	return [
-// 		{ title: `${noteTitle} | ${displayName}'s Notes | Epic Notes` },
+// 		{ title: `${noteTitle} | ${displayName}'s Notes | Tiny Meets` },
 // 		{
 // 			name: 'description',
 // 			content: noteContentsSummary,
