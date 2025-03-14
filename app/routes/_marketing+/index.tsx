@@ -339,69 +339,82 @@ export default function Index() {
 
 																<div className="flex h-full">
 																	<div className="flex-1">
-																		<CardContent className="p-0">
-																			<div className="flex h-full flex-col">
-																				<div className="border-b border-gray-100 p-3 pb-2">
-																					<div className="flex items-start justify-between">
-																						<div>
-																							<div className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-																								<Icon
-																									name="clock"
-																									className="mr-1 h-3 w-3"
-																								/>
-																								{format(
-																									new Date(meetup.startTime),
-																									'h:mm a',
-																								)}
+																		<CardContent className="flex h-full flex-col p-0">
+																			<div className="p-4">
+																				<div className="flex items-start justify-between">
+																					<div className="w-full">
+																						<h3 className="text-lg font-semibold leading-tight text-gray-900">
+																							{meetup.title}
+																						</h3>
+
+																						<div className="mt-3 space-y-2">
+																							<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																								<div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50">
+																									<Icon
+																										name="clock"
+																										className="h-3.5 w-3.5 text-blue-600"
+																									/>
+																								</div>
+																								<span>
+																									{format(
+																										new Date(meetup.startTime),
+																										'h:mm a',
+																									)}
+																								</span>
 																							</div>
-																							<h3 className="mt-1 text-base font-semibold">
-																								{meetup.title}
-																							</h3>
-																							<div className="mt-1 flex items-center gap-1 text-xs text-gray-600">
-																								<span>By</span>
-																								<span className="font-medium">
+
+																							<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																								<div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-50">
+																									<Icon
+																										name="map-pin"
+																										className="h-3.5 w-3.5 text-red-600"
+																									/>
+																								</div>
+																								<span>
+																									{meetup.location.name}
+																								</span>
+																							</div>
+
+																							<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																								<div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100">
+																									<Icon
+																										name="users"
+																										className="h-3.5 w-3.5 text-gray-600"
+																									/>
+																								</div>
+																								<span>
+																									Organized by{' '}
 																									{meetup.owner.name ||
 																										meetup.owner.username}
 																								</span>
 																							</div>
 																						</div>
-
-																						<Button
-																							variant="outline"
-																							size="sm"
-																							className="h-7 rounded-full bg-green-50 px-3 text-xs text-green-800 hover:bg-green-100"
-																						>
-																							<Icon
-																								name="check"
-																								className="mr-1 h-3 w-3"
-																							/>
-																							Going
-																						</Button>
 																					</div>
-																				</div>
 
-																				<div className="flex flex-col justify-between px-3 pb-3">
-																					<div className="flex items-center gap-1 text-xs text-gray-600">
+																					<Button
+																						variant="outline"
+																						size="sm"
+																						className="ml-2 h-8 shrink-0 rounded-full bg-green-50 px-4 text-xs font-medium text-green-700 hover:bg-green-100 hover:text-green-800"
+																					>
 																						<Icon
-																							name="map-pin"
-																							className="h-3 w-3 text-gray-500"
+																							name="check"
+																							className="mr-1.5 h-3.5 w-3.5"
 																						/>
-																						<span>{meetup.location.name}</span>
-																					</div>
-
-																					{/* Attendee Avatar Stack */}
-																					<div className="mt-2 border-t border-gray-100 pt-2">
-																						<AttendeeAvatarStack
-																							attendees={meetup.attendees}
-																						/>
-																					</div>
+																						Going
+																					</Button>
 																				</div>
+																			</div>
+
+																			<div className="mt-auto border-t border-gray-100 bg-gray-50 px-4 py-3">
+																				<AttendeeAvatarStack
+																					attendees={meetup.attendees}
+																				/>
 																			</div>
 																		</CardContent>
 																	</div>
 
-																	<div className="w-1/4 bg-gray-50">
-																		<div className="h-32 overflow-hidden">
+																	<div className="w-1/4">
+																		<div className="h-full overflow-hidden">
 																			<img
 																				src={`/resources/location-images/${meetup.location.id}`}
 																				alt={`${meetup.title} meetup at ${meetup.location.name}`}
@@ -453,57 +466,66 @@ export default function Index() {
 									<Card className="overflow-hidden opacity-90 transition-all duration-200 hover:border-blue-300 hover:shadow-sm hover:ring-1 hover:ring-blue-200">
 										<div className="flex h-full">
 											<div className="flex-1">
-												<CardContent className="p-0">
-													<div className="flex h-full flex-col">
-														<div className="border-b border-gray-100 p-3 pb-2">
-															<div>
-																<Badge
-																	variant="outline"
-																	className="mb-1 bg-gray-50 text-xs"
-																>
-																	<Icon
-																		name="calendar"
-																		className="mr-1 h-3 w-3"
-																	/>
-																	{format(
-																		new Date(meetup.startTime),
-																		'MMM d, yyyy',
-																	)}
-																</Badge>
-																<h3 className="text-base font-semibold">
+												<CardContent className="flex h-full flex-col p-0">
+													<div className="p-4">
+														<div className="flex items-start justify-between">
+															<div className="w-full">
+																<h3 className="text-lg font-semibold leading-tight text-gray-900">
 																	{meetup.title}
 																</h3>
-																<div className="mt-1 flex items-center gap-1 text-xs text-gray-600">
-																	<span>By</span>
-																	<span className="font-medium">
-																		{meetup.owner.name || meetup.owner.username}
-																	</span>
+
+																<div className="mt-3 space-y-2">
+																	<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																		<div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50">
+																			<Icon
+																				name="calendar"
+																				className="h-3.5 w-3.5 text-blue-600"
+																			/>
+																		</div>
+																		<span>
+																			{format(
+																				new Date(meetup.startTime),
+																				'MMM d, yyyy',
+																			)}
+																		</span>
+																	</div>
+
+																	<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																		<div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-50">
+																			<Icon
+																				name="map-pin"
+																				className="h-3.5 w-3.5 text-red-600"
+																			/>
+																		</div>
+																		<span>{meetup.location.name}</span>
+																	</div>
+
+																	<div className="flex items-center gap-1.5 text-sm text-gray-700">
+																		<div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100">
+																			<Icon
+																				name="users"
+																				className="h-3.5 w-3.5 text-gray-600"
+																			/>
+																		</div>
+																		<span>
+																			Organized by{' '}
+																			{meetup.owner.name ||
+																				meetup.owner.username}
+																		</span>
+																	</div>
 																</div>
 															</div>
 														</div>
+													</div>
 
-														<div className="flex flex-col justify-between px-3 pb-3">
-															<div className="flex items-center gap-1 text-xs text-gray-600">
-																<Icon
-																	name="map-pin"
-																	className="h-3 w-3 text-gray-500"
-																/>
-																<span>{meetup.location.name}</span>
-															</div>
-
-															{/* Attendee Avatar Stack */}
-															<div className="mt-2 border-t border-gray-100 pt-2">
-																<AttendeeAvatarStack
-																	attendees={meetup.attendees}
-																/>
-															</div>
-														</div>
+													<div className="mt-auto border-t border-gray-100 bg-gray-50 px-4 py-3">
+														<AttendeeAvatarStack attendees={meetup.attendees} />
 													</div>
 												</CardContent>
 											</div>
 
-											<div className="w-1/4 bg-gray-50">
-												<div className="h-32 overflow-hidden">
+											<div className="w-1/4">
+												<div className="h-full overflow-hidden">
 													<img
 														src={`/resources/location-images/${meetup.location.id}`}
 														alt={`${meetup.title} meetup at ${meetup.location.name}`}
