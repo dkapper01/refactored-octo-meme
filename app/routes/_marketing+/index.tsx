@@ -223,6 +223,11 @@ export default function Index() {
 						const date = format(new Date(meetup.startTime), 'MMM d')
 						const dayName = format(new Date(meetup.startTime), 'EEEE')
 
+						// Check if it's today
+						const isToday =
+							format(new Date(meetup.startTime), 'yyyy-MM-dd') ===
+							format(new Date(), 'yyyy-MM-dd')
+
 						// Check if it's tomorrow
 						const tomorrow = new Date()
 						tomorrow.setDate(tomorrow.getDate() + 1)
@@ -230,11 +235,17 @@ export default function Index() {
 							format(new Date(meetup.startTime), 'yyyy-MM-dd') ===
 							format(tomorrow, 'yyyy-MM-dd')
 
-						const key = isTomorrow ? 'Tomorrow' : date
+						let key = date
+						if (isToday) {
+							key = 'Today'
+						} else if (isTomorrow) {
+							key = 'Tomorrow'
+						}
+
 						const displayDate = {
 							key,
 							date: key,
-							dayName: isTomorrow ? 'Wednesday' : dayName,
+							dayName: isToday ? dayName : isTomorrow ? dayName : dayName,
 						}
 
 						if (!acc[key]) {
@@ -244,7 +255,8 @@ export default function Index() {
 							}
 						}
 
-						acc[key].meetups.push(meetup)
+						// Ensure acc[key] exists before pushing
+						acc[key]!.meetups.push(meetup)
 						return acc
 					},
 					{} as Record<
